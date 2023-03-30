@@ -34,6 +34,9 @@ app.use(express.json())
 // paerse cookie
 app.use(cookieParser())
 
+//middleware for file-upload
+app.use(fileupload())
+
 //dev logging middleware
 if(process.env.NODE_ENV==='development'){
     app.use(morgan('dev'))

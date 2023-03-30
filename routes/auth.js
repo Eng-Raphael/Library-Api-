@@ -14,9 +14,11 @@ const router = express.Router();
 
 const {protect,authorize} = require('../middleware/auth')
 
+
+
 router
 .route('/:id/photo')
-.put(protect , authorize('user'),userPhotoUpload)
+.put(protect ,userPhotoUpload)
 
 router.post('/register', register);
 router.post('/login', login);
