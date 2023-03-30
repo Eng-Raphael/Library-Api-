@@ -125,7 +125,7 @@ exports.userPhotoUpload = asyncHandler(async (req,res,next) =>{
     //Create custom file name 
     file.name = `photo_${user._id}${path.parse(file.name).ext}`
     //move file to folder 
-    file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
+    file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${file.name}`, async err => {
         if(err){
           console.error(err)
           return next(new ErrorResponse(`Error while file upload`,500))  
