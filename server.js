@@ -13,6 +13,9 @@ const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const cors = require('cors');
 
+//route files
+const auth = require('./routes/auth')
+
 
 //after route files loasd xss-clean
 const xss = require('xss-clean');
@@ -61,7 +64,10 @@ app.use(cors());
 //set static folder
 app.use(express.static(path.join(__dirname,'public')))
 
-//here mount all routes after words use errorhandling middleware
+//mount routes
+app.use('/api/v1/auth',auth)
+
+
 app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000

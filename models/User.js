@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const slugify = require('slugify')
+
 
 const UserSchema = new mongoose.Schema({
     
@@ -37,7 +37,7 @@ const UserSchema = new mongoose.Schema({
         default: 'no-photo.jpg'
     },
     role:{
-        type:[string],
+        type:[String],
         required:true,
         default:'user',
         enum:[
