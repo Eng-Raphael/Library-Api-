@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const slugify = require('slugify')
 
 const UserSchema = new mongoose.Schema({
     
@@ -12,6 +13,9 @@ const UserSchema = new mongoose.Schema({
     lastname:{
         type:String,
         required:[true , 'Please add Your lastname']
+    },
+    username:{
+        type:String
     },
     email:{
         type: String,
@@ -40,10 +44,15 @@ const UserSchema = new mongoose.Schema({
             'user',
             'admin'
         ]
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
     }
 })
 
 UserSchema.pre('save' , async function(next){
+    this.username = (this.firstname +"_"+ this.lastname).toLowerCase()
     if(!this.isModified('password')){
         next();
     }
