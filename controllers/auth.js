@@ -101,6 +101,48 @@ exports.updatePassword = asyncHandler(async (req,res,next) =>{
     sendTokenResponse(user, 200, res);
 })
 
+//@desc     Upload photo for bootcamp
+//@route    PUT /api/v1/auth/:id/photo
+//@access   Private
+exports.userPhotoUpload = asyncHandler(async (req,res,next) =>{
+    
+    const user = await User.findById(req.params.id)
+
+    if(!user){
+        return next(new ErrorResponse(`Bootcamp not found with id : ${req.params.id}`,404));
+    }
+
+    if(!req.files){
+        return next(new ErrorResponse(`Please upload a file`,404))
+    }
+
+    const file = req.files.file
+
+    // Make sure image is a photo
+    if(!file.mimetype.startsWith('image')){
+        return next(new ErrorResponse(`Please upload an image file`,404))
+    }
+
+    //check file size
+    if(file.size > process.env.MAX_FILE_UPLOAD){
+        return next(new ErrorResponse(`Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,404))
+    }
+
+    //Create custom file name 
+    file.name = `photo_${user._id}${path.parse(file.name).ext}`
+    
+    //move file to folder 
+    file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async err => {
+        if(err){
+          console.error(err)
+          return next(new ErrorResponse(`Error while file upload`,500))  
+        }
+        await User.findByIdAndUpdate(req.params.id,{photo : file.name})
+        res.status(200).json({success:true , data:file.name})
+    })
+
+})
+
 // Get token from model , create cookie and send response 
 const sendTokenResponse = (user , statuscode , res) =>{
     const token = user.getSignedJwtToken();

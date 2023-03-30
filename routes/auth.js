@@ -6,12 +6,17 @@ const {
     getMe,
     updateDetails,
     updatePassword,
-    logout
+    logout,
+    userPhotoUpload
 } = require('../controllers/auth');
 
 const router = express.Router();
 
-const {protect} = require('../middleware/auth')
+const {protect,authorize} = require('../middleware/auth')
+
+router
+.route('/:id/photo')
+.put(protect , authorize('user'),userPhotoUpload)
 
 router.post('/register', register);
 router.post('/login', login);
