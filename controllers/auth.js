@@ -107,23 +107,29 @@ exports.updatePassword = asyncHandler(async (req,res,next) =>{
 exports.userPhotoUpload = asyncHandler(async (req,res,next) =>{
     
     const user = await User.findById(req.params.id)
+
     if(!user){
-        return next(new ErrorResponse(`Bootcamp not found with id : ${req.params.id}`,404));
+        return next(new ErrorResponse(`User not found with id : ${req.params.id}`,404));
     }
+
     if(!req.files){
         return next(new ErrorResponse(`Please upload a file`,404))
     }
+
     const file = req.files.file
     // Make sure image is a photo
     if(!file.mimetype.startsWith('image')){
         return next(new ErrorResponse(`Please upload an image file`,404))
     }
+
     //check file size
     if(file.size > process.env.MAX_FILE_UPLOAD){
         return next(new ErrorResponse(`Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,404))
     }
+
     //Create custom file name 
     file.name = `photo_${user._id}${path.parse(file.name).ext}`
+    
     //move file to folder 
     file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${file.name}`, async err => {
         if(err){
