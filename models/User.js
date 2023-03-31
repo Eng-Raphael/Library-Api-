@@ -6,11 +6,11 @@ const crypto = require('crypto');
 
 const UserSchema = new mongoose.Schema({
     
-    firstname:{
+    firstName:{
         type:String,
         required:[true , 'Please add Your firstname']
     },
-    lastname:{
+    lastName:{
         type:String,
         required:[true , 'Please add Your lastname']
     },
@@ -32,7 +32,7 @@ const UserSchema = new mongoose.Schema({
         minlength: 8,
         select: false
     },
-    photo:{
+    image:{
         type: String,
         default: 'no-photo.jpg'
     },
