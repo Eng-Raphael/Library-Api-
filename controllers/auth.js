@@ -11,12 +11,42 @@ const path = require('path')
 exports.register = asyncHandler(async (req , res,next) =>{
 
     const {firstname,lastname,email,password} = req.body;
+
+    if(!req.files){
+        return next(new ErrorResponse(`Please upload a file`,404))
+    }
+
+    const file = req.files.file
+
+    // Make sure image is a photo
+    if(!file.mimetype.startsWith('image')){
+        return next(new ErrorResponse(`Please upload an image file`,404))
+    }
+
+    //check file size
+    if(file.size > process.env.MAX_FILE_UPLOAD){
+        return next(new ErrorResponse(`Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,404))
+    }
+
+    //Create custom file name 
+    file.name = `photo_profile${path.parse(file.name).ext}`
+    
+    //move file to folder 
+    file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${file.name}`, async err => {
+        if(err){
+          console.error(err)
+          return next(new ErrorResponse(`Error while file upload`,500))  
+        }
+        
+    })
+    
     //create User
     const user = await User.create({
         firstname,
         lastname,
         email,
-        password
+        password,
+        photo : file.name
     })
 
     sendTokenResponse(user , 200 , res)
@@ -104,43 +134,43 @@ exports.updatePassword = asyncHandler(async (req,res,next) =>{
 //@desc     Upload photo for bootcamp
 //@route    PUT /api/v1/auth/:id/photo
 //@access   Private
-exports.userPhotoUpload = asyncHandler(async (req,res,next) =>{
+// exports.userPhotoUpload = asyncHandler(async (req,res,next) =>{
     
-    const user = await User.findById(req.params.id)
+//     const user = await User.findById(req.params.id)
 
-    if(!user){
-        return next(new ErrorResponse(`User not found with id : ${req.params.id}`,404));
-    }
+//     if(!user){
+//         return next(new ErrorResponse(`User not found with id : ${req.params.id}`,404));
+//     }
 
-    if(!req.files){
-        return next(new ErrorResponse(`Please upload a file`,404))
-    }
+//     if(!req.files){
+//         return next(new ErrorResponse(`Please upload a file`,404))
+//     }
 
-    const file = req.files.file
-    // Make sure image is a photo
-    if(!file.mimetype.startsWith('image')){
-        return next(new ErrorResponse(`Please upload an image file`,404))
-    }
+//     const file = req.files.file
+//     // Make sure image is a photo
+//     if(!file.mimetype.startsWith('image')){
+//         return next(new ErrorResponse(`Please upload an image file`,404))
+//     }
 
-    //check file size
-    if(file.size > process.env.MAX_FILE_UPLOAD){
-        return next(new ErrorResponse(`Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,404))
-    }
+//     //check file size
+//     if(file.size > process.env.MAX_FILE_UPLOAD){
+//         return next(new ErrorResponse(`Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,404))
+//     }
 
-    //Create custom file name 
-    file.name = `photo_${user._id}${path.parse(file.name).ext}`
+//     //Create custom file name 
+//     file.name = `photo_${user._id}${path.parse(file.name).ext}`
     
-    //move file to folder 
-    file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${file.name}`, async err => {
-        if(err){
-          console.error(err)
-          return next(new ErrorResponse(`Error while file upload`,500))  
-        }
-        await User.findByIdAndUpdate(req.params.id,{photo : file.name})
-        res.status(200).json({success:true , data:file.name})
-    })
+//     //move file to folder 
+//     file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${file.name}`, async err => {
+//         if(err){
+//           console.error(err)
+//           return next(new ErrorResponse(`Error while file upload`,500))  
+//         }
+//         await User.findByIdAndUpdate(req.params.id,{photo : file.name})
+//         res.status(200).json({success:true , data:file.name})
+//     })
 
-})
+// })
 
 // @desc      Log user out / clear cookie
 // @route     GET /api/v1/auth/logout
