@@ -10,7 +10,7 @@ const path = require('path')
 
 exports.register = asyncHandler(async (req , res,next) =>{
 
-    const {firstname,lastname,email,password} = req.body;
+    const {firstName,lastName,email,password} = req.body;
 
     if(!req.files){
         return next(new ErrorResponse(`Please upload a file`,404))
@@ -42,11 +42,11 @@ exports.register = asyncHandler(async (req , res,next) =>{
     
     //create User
     const user = await User.create({
-        firstname,
-        lastname,
+        firstName,
+        lastName,
         email,
         password,
-        photo : file.name
+        image : file.name
     })
 
     sendTokenResponse(user , 200 , res)
@@ -104,7 +104,8 @@ exports.getMe = asyncHandler(async (req,res,next) => {
 // @access    Private
 exports.updateDetails = asyncHandler(async (req,res,next) => {
     const fieldsToUpdate ={
-        name:req.body.name ,
+        firstName:req.body.firstName ,
+        lastName:req.body.lastName ,
         email:req.body.email
     }
     const user =  await User.findByIdAndUpdate(req.user.id , fieldsToUpdate ,{

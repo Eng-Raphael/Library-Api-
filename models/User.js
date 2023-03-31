@@ -8,11 +8,11 @@ const UserSchema = new mongoose.Schema({
     
     firstName:{
         type:String,
-        required:[true , 'Please add Your firstname']
+        required:[true , 'Please add Your firstName']
     },
     lastName:{
         type:String,
-        required:[true , 'Please add Your lastname']
+        required:[true , 'Please add Your lastName']
     },
     username:{
         type:String
@@ -41,7 +41,8 @@ const UserSchema = new mongoose.Schema({
         required:true,
         enum:[
             'user',
-            'admin'
+            'admin',
+            'author'
         ],
         default:'user'
     },
@@ -52,7 +53,7 @@ const UserSchema = new mongoose.Schema({
 })
 
 UserSchema.pre('save' , async function(next){
-    this.username = (this.firstname +"_"+ this.lastname).toLowerCase()
+    this.username = (this.firstName +"_"+ this.lastName).toLowerCase()
     if(!this.isModified('password')){
         next();
     }
