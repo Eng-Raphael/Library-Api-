@@ -13,6 +13,7 @@ const cors = require('cors');
 
 // route files
 const xss = require('xss-clean');
+const category = require('./routes/category');
 const auth = require('./routes/auth');
 
 // after route files loasd xss-clean
@@ -67,6 +68,9 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // mount routes
+
+app.use('/api/categories', category);
+
 app.use('/api/auth', auth);
 
 app.use(errorHandler);
