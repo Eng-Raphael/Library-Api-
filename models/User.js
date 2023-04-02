@@ -37,7 +37,7 @@ const UserSchema = new mongoose.Schema({
         default: 'no-photo.jpg'
     },
     role:{
-        type:[String],
+        type:String,
         required:true,
         enum:[
             'user',
