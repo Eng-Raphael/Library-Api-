@@ -6,6 +6,7 @@ const ErrorResponse = require('../utils/errorResponse');
 
 const Book = require('../models/Book');
 const Category = require('../models/Category');
+const Author = require('../models/Author');
 
 // @desc Get all books
 // @route GET /api/books
@@ -47,6 +48,18 @@ exports.createBook = [
         return res.status(400).json({ errors: errors.array() });
       }
 
+      if (req.body.category) {
+        const foundCategory = await Category.findById(req.body.category);
+        if (!foundCategory) {
+          return next(new ErrorResponse(`Category ${req.body.category} not found`, 404));
+        }
+      }
+      if (req.body.author) {
+        const foundAuthor = await Author.findById(req.body.author);
+        if (!foundAuthor) {
+          return next(new ErrorResponse(`Author ${req.body.author} not found`, 404));
+        }
+      }
       const book = new Book({
         name: req.body.name,
         category: req.body.category,

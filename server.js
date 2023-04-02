@@ -11,6 +11,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const cors = require('cors');
+// eslint-disable-next-line no-unused-vars
 
 // route files
 const xss = require('xss-clean');
@@ -21,6 +22,7 @@ const books = require('./routes/books');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/error');
 const category = require('./routes/category');
+const author = require('./routes/author');
 
 // load env
 dotenv.config({ path: './config/config.env' });
@@ -80,6 +82,10 @@ app.use('/api/categories', category);
 
 app.use('/api/auth', auth);
 
+// mount routes
+app.use('/api/auth', auth);
+app.use('/api/authors', author);
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
@@ -87,7 +93,8 @@ const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, console.log(`server running in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`.yellow.bold));
 
 // Handle unhandled rejection
-process.on('unhandledRejection', (err) => {
+// eslint-disable-next-line no-unused-vars
+process.on('unhandledRejection', (err, Promise) => {
   console.log(`Error: ${err.message}`.red.bold);
   // close server
   server.close(() => { process.exit(1); });
