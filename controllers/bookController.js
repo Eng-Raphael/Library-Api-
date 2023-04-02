@@ -5,6 +5,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 const Book = require('../models/Book');
+const Category = require('../models/Category');
 
 // @desc Get all books
 // @route GET /api/books

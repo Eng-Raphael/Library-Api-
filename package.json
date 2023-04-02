@@ -40,5 +40,9 @@
     "nodemon": "^2.0.22",
     "path": "^0.12.7",
     "xss-clean": "^0.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.37.0",
+    "eslint-config-airbnb": "^19.0.4"
   }
 }

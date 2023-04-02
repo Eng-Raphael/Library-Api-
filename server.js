@@ -2,6 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const fileupload = require('express-fileupload');
+
+const colors = require('colors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -9,7 +11,6 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const hpp = require('hpp');
 const cors = require('cors');
-const colors = require('colors')
 
 // route files
 const xss = require('xss-clean');
@@ -19,6 +20,7 @@ const books = require('./routes/books');
 // after route files loasd xss-clean
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/error');
+const category = require('./routes/category');
 
 // load env
 dotenv.config({ path: './config/config.env' });
@@ -71,6 +73,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/books', books);
 
 app.use('/api/v1/auth', auth);
+
+// mount routes
+
+app.use('/api/categories', category);
+
+app.use('/api/auth', auth);
 
 app.use(errorHandler);
 
