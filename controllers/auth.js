@@ -29,7 +29,7 @@ exports.register = asyncHandler(async (req , res,next) =>{
     }
 
     //Create custom file name 
-    file.name = `photo_profile${path.parse(file.name).ext}`
+    file.name = `photo_${firstName+lastName}${path.parse(file.name).ext}`
     
     //move file to folder 
     file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${file.name}`, async err => {
@@ -74,20 +74,6 @@ exports.login = asyncHandler(async (req,res,next) => {
     sendTokenResponse(user , 200 , res)
 })
 
-// @desc      Log user out / clear cookie
-// @route     GET /api/v1/auth/logout
-// @access    Public
-exports.logout = asyncHandler(async (req,res,next) => {
-    res.cookie('token' ,'none',{
-        expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: true,
-    })
-    res.status(200).json({
-        success: true,
-        data: {},
-    });
-})
-
 // @desc      Get current logged in user
 // @route     GET /api/v1/auth/me
 // @access    Private
@@ -95,7 +81,7 @@ exports.getMe = asyncHandler(async (req,res,next) => {
     const user = await User.findById(req.user.id)
     res.status(200).json({
         success: true,
-        data: user,
+        data: user
       });
 })
 
@@ -184,9 +170,9 @@ exports.logout = asyncHandler(async (req, res, next) => {
   
     res.status(200).json({
       success: true,
-      data: {},
+      data: {}
     });
-  });
+});
 
 // Get token from model , create cookie and send response 
 const sendTokenResponse = (user , statuscode , res) =>{
