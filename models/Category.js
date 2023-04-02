@@ -14,10 +14,10 @@ const CategorySchema = mongoose.Schema(
       unique: true,
       minlength: [3, 'Category Name is too short, minimum 3 , maximum 20'],
       maxlength: [20, 'Category Name is too short, minimum 3 , maximum 20'],
-      match: [
-        regexValidation,
-        'Please Add A Valid Category, it can\'t contain any special characters but hyphens)',
-      ],
+      // match: [
+      //   regexValidation,
+      //   'Please Add A Valid Category, it can\'t contain any special characters but hyphens)',
+      // ],
     },
   },
   { timestamps: true },
