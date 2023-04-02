@@ -121,6 +121,20 @@ exports.createBook = [
 exports.updateBook = asyncHandler(async (req, res, next) => {
   let book = await Book.findById(req.params.bookId);
 
+  // Validate input fields
+  await body('name')
+    .isLength({ min: 3, max: 50 })
+    .withMessage('Book name must be between 3 and 50 characters')
+    .run(req);
+  await body('category').exists().withMessage('Category is required').run(req);
+  await body('author').exists().withMessage('Author is required').run(req);
+  await body('avgRating').isNumeric().withMessage('Average rating must be a number').run(req);
+
+  // Check for validation errors
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(new ErrorResponse(errors.array()[0].msg, 400));
+  }
   if (!book) {
     return next(new ErrorResponse('Book not found', 404));
   }
