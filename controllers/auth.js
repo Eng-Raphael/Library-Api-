@@ -1,8 +1,10 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable consistent-return */
+const crypto = require('crypto');
+const path = require('path');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
-const crypto = require('crypto');
-const path = require('path')
 
 // @desc      Register user
 // @route     POST /api/v1/auth/register
@@ -10,83 +12,68 @@ const path = require('path')
 
 exports.register = asyncHandler(async (req , res,next) =>{
 
-    const {firstName,lastName,email,password} = req.body;
+  const {firstName,lastName,email,password} = req.body;
 
-    if(!req.files){
-        return next(new ErrorResponse(`Please upload a file`,404))
-    }
+  if(!req.files){
+      return next(new ErrorResponse(`Please upload a file`,404))
+  }
 
-    const file = req.files.file
+  const file = req.files.file
 
-    // Make sure image is a photo
-    if(!file.mimetype.startsWith('image')){
-        return next(new ErrorResponse(`Please upload an image file`,404))
-    }
+  // Make sure image is a photo
+  if(!file.mimetype.startsWith('image')){
+      return next(new ErrorResponse(`Please upload an image file`,404))
+  }
 
-    //check file size
-    if(file.size > process.env.MAX_FILE_UPLOAD){
-        return next(new ErrorResponse(`Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,404))
-    }
+  //check file size
+  if(file.size > process.env.MAX_FILE_UPLOAD){
+      return next(new ErrorResponse(`Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,404))
+  }
 
-    //Create custom file name 
-    file.name = `photo_profile${path.parse(file.name).ext}`
-    
-    //move file to folder 
-    file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${file.name}`, async err => {
-        if(err){
-          console.error(err)
-          return next(new ErrorResponse(`Error while file upload`,500))  
-        }
-        
-    })
-    
-    //create User
-    const user = await User.create({
-        firstName,
-        lastName,
-        email,
-        password,
-        image : file.name
-    })
+  //Create custom file name 
+  file.name = `photo_${firstName+lastName}${path.parse(file.name).ext}`
+  
+  //move file to folder 
+  file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${file.name}`, async err => {
+      if(err){
+        console.error(err)
+        return next(new ErrorResponse(`Error while file upload`,500))  
+      }
+      
+  })
+  
+  //create User
+  const user = await User.create({
+      firstName,
+      lastName,
+      email,
+      password,
+      image : file.name
+  })
 
-    sendTokenResponse(user , 200 , res)
+  sendTokenResponse(user , 200 , res)
 
 })
-
 // @desc      Login user
 // @route     POST /api/v1/auth/login
 // @access    Public
-exports.login = asyncHandler(async (req,res,next) => {
-    const {email , password} = req.body
-    if(!email || !password){
-        return next(new ErrorResponse('Please provide an email and password', 400))
-    }
-    const user = await User.findOne({email}).select('+password')
-    if(!user){
-        return next(new ErrorResponse('Invalid credentials', 401))
-    }
+exports.login = asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return next(new ErrorResponse('Please provide an email and password', 400));
+  }
+  const user = await User.findOne({ email }).select('+password');
+  if (!user) {
+    return next(new ErrorResponse('Invalid credentials', 401));
+  }
 
-    const isMatch = await user.matchPassword(password)
+  const isMatch = await user.matchPassword(password);
 
-    if(!isMatch){
-        return next(new ErrorResponse('Invalid credentials', 401));
-    }
-    sendTokenResponse(user , 200 , res)
-})
-
-// @desc      Log user out / clear cookie
-// @route     GET /api/v1/auth/logout
-// @access    Public
-exports.logout = asyncHandler(async (req,res,next) => {
-    res.cookie('token' ,'none',{
-        expires: new Date(Date.now() + 10 * 1000),
-        httpOnly: true,
-    })
-    res.status(200).json({
-        success: true,
-        data: {},
-    });
-})
+  if (!isMatch) {
+    return next(new ErrorResponse('Invalid credentials', 401));
+  }
+  sendTokenResponse(user, 200, res);
+});
 
 // @desc      Get current logged in user
 // @route     GET /api/v1/auth/me
@@ -95,48 +82,48 @@ exports.getMe = asyncHandler(async (req,res,next) => {
     const user = await User.findById(req.user.id)
     res.status(200).json({
         success: true,
-        data: user,
+        data: user
       });
 })
 
 // @desc      Update user details
 // @route     PUT /api/v1/auth/updatedetails
 // @access    Private
-exports.updateDetails = asyncHandler(async (req,res,next) => {
-    const fieldsToUpdate ={
-        firstName:req.body.firstName ,
-        lastName:req.body.lastName ,
-        email:req.body.email
-    }
-    const user =  await User.findByIdAndUpdate(req.user.id , fieldsToUpdate ,{
-        new:true,
-        runValidators:true
-    })
-    res.status(200).json({
-        success: true,
-        data: user,
-    });
-})
+exports.updateDetails = asyncHandler(async (req, res) => {
+  const fieldsToUpdate = {
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+  };
+  const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+    new: true,
+    runValidators: true,
+  });
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
 
 // @desc      Update password
 // @route     PUT /api/v1/auth/updatepassword
 // @access    Private
-exports.updatePassword = asyncHandler(async (req,res,next) =>{
-    const user = await User.findById(req.user.id).select('+password')
-    if(!await user.matchPassword(req.body.currentPassword)){
-        return next(new ErrorResponse('Password is incorrect', 401));
-    }
-    user.password = req.body.newPassword
-    await user.save()
+exports.updatePassword = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select('+password');
+  if (!await user.matchPassword(req.body.currentPassword)) {
+    return next(new ErrorResponse('Password is incorrect', 401));
+  }
+  user.password = req.body.newPassword;
+  await user.save();
 
-    sendTokenResponse(user, 200, res);
-})
+  sendTokenResponse(user, 200, res);
+});
 
-//@desc     Upload photo for bootcamp
-//@route    PUT /api/v1/auth/:id/photo
-//@access   Private
+// @desc     Upload photo for bootcamp
+// @route    PUT /api/v1/auth/:id/photo
+// @access   Private
 // exports.userPhotoUpload = asyncHandler(async (req,res,next) =>{
-    
+
 //     const user = await User.findById(req.params.id)
 
 //     if(!user){
@@ -155,17 +142,19 @@ exports.updatePassword = asyncHandler(async (req,res,next) =>{
 
 //     //check file size
 //     if(file.size > process.env.MAX_FILE_UPLOAD){
-//         return next(new ErrorResponse(`Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,404))
+//         return next(new ErrorResponse(
+//    `Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,404)
+//     )
 //     }
 
-//     //Create custom file name 
+//     //Create custom file name
 //     file.name = `photo_${user._id}${path.parse(file.name).ext}`
-    
-//     //move file to folder 
+
+//     //move file to folder
 //     file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${file.name}`, async err => {
 //         if(err){
 //           console.error(err)
-//           return next(new ErrorResponse(`Error while file upload`,500))  
+//           return next(new ErrorResponse(`Error while file upload`,500))
 //         }
 //         await User.findByIdAndUpdate(req.params.id,{photo : file.name})
 //         res.status(200).json({success:true , data:file.name})
@@ -184,9 +173,9 @@ exports.logout = asyncHandler(async (req, res, next) => {
   
     res.status(200).json({
       success: true,
-      data: {},
+      data: {}
     });
-  });
+});
 
 // Get token from model , create cookie and send response 
 const sendTokenResponse = (user , statuscode , res) =>{
@@ -204,6 +193,10 @@ const sendTokenResponse = (user , statuscode , res) =>{
         .cookie('token',token,options)
         .json({
             success:true,
-            token
+            token,
+            userId:user._id,
+            userRole:user.role,
+            userName:user.username
         })
+
 }
