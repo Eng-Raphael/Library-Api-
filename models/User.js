@@ -42,7 +42,22 @@ const UserSchema = new mongoose.Schema({
     enum: ['user', 'admin', 'author'],
     default: 'user',
   },
+  books: [{
+    type: mongoose.Schema.ObjectId,
+    ref: 'Book',
+    required: false,
+    shelve: {
+      enum: ['READING', 'READ', 'WANT TO READ'],
+    },
+    rating: {
+      type: Number,
+    },
+  }],
   createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
     type: Date,
     default: Date.now,
   },
