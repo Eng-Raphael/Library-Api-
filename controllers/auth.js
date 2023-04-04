@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-use-before-define */
 /* eslint-disable consistent-return */
 const crypto = require('crypto');
@@ -77,7 +79,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 // @desc      Get current logged in user
 // @route     GET /api/v1/auth/me
 // @access    Private
-exports.getMe = asyncHandler(async (req, res, next) => {
+exports.getMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id);
   res.status(200).json({
     success: true,
