@@ -4,6 +4,7 @@
 /* eslint-disable consistent-return */
 const crypto = require('crypto');
 const path = require('path');
+const { body, validationResult } = require('express-validator');
 const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
@@ -25,7 +26,7 @@ exports.register = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Please upload a file', 404));
   }
 
-  const { file } = req.files.file;
+  const { file } = req.files;
 
   // Make sure image is a photo
   if (!file.mimetype.startsWith('image')) {
