@@ -21,6 +21,11 @@ exports.register = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('please check your input data', 404));
   }
 
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    return next(new ErrorResponse('User exsisting with this email', 404));
+  }
+
   if (!req.files) {
     return next(new ErrorResponse('Please upload a file', 404));
   }
