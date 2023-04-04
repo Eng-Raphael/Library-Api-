@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const fileupload = require('express-fileupload');
 
+// eslint-disable-next-line no-unused-vars
 const colors = require('colors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
