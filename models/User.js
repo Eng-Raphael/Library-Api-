@@ -48,9 +48,11 @@ const UserSchema = new mongoose.Schema({
     required: false,
     shelve: {
       enum: ['READING', 'READ', 'WANT TO READ'],
+      default: 'WANT TO READ',
     },
     rating: {
       type: Number,
+      default: 0,
     },
   }],
   createdAt: {
