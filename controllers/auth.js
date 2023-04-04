@@ -17,6 +17,10 @@ exports.register = asyncHandler(async (req, res, next) => {
     firstName, lastName, email, password,
   } = req.body;
 
+  if (!firstName || !lastName || !email || !password) {
+    return next(new ErrorResponse('please check your input data', 404));
+  }
+
   if (!req.files) {
     return next(new ErrorResponse('Please upload a file', 404));
   }
