@@ -10,10 +10,12 @@ const BookSchema = new mongoose.Schema({
   category: {
     type: mongoose.Schema.ObjectId,
     ref: 'Category',
+    required: false,
   },
   author: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
+    required: false,
   },
   image: {
     type: String,
@@ -21,16 +23,13 @@ const BookSchema = new mongoose.Schema({
   },
   avgRating: {
     type: Number,
+    default: 0,
   },
   reviews: [
     {
       type: String,
     },
   ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Book', BookSchema);

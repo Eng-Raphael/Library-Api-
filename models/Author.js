@@ -40,6 +40,6 @@ const AuthorSchema = new mongoose.Schema({
     type: String,
     default: 'default.png',
   },
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Author', AuthorSchema);

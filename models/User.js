@@ -55,15 +55,7 @@ const UserSchema = new mongoose.Schema({
       default: 0,
     },
   }],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+}, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {
   this.username = `${this.firstName}_${this.lastName}`.toLowerCase();
