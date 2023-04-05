@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-underscore-dangle */
 const mongoose = require('mongoose');
@@ -39,7 +40,7 @@ const UserSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ['user', 'admin', 'author'],
+    enum: ['user', 'admin'],
     default: 'user',
   },
   books: [{
