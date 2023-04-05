@@ -74,19 +74,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // mount routes
 app.use('/api/books', books);
-
-app.use('/api/v1/auth', auth);
-
-// mount routes
-
 app.use('/api/categories', category);
-
-app.use('/api/auth', auth);
-
-// mount routes
 app.use('/api/auth', auth);
 app.use('/api/authors', author);
 
+// error middleware
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

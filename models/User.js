@@ -1,3 +1,4 @@
+/* eslint-disable no-return-await */
 /* eslint-disable func-names */
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-underscore-dangle */
@@ -67,15 +68,15 @@ UserSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-UserSchema.methods.getSignedJwtToken = () => jwt.sign(
-  { id: this._id },
-  process.env.JWT_SECRET,
+// Sign JWT and return
+UserSchema.methods.getSignedJwtToken = function () {
+  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE,
+  });
+};
 
-  { expiresIn: process.env.JWT_EXPIRE },
-);
-
+// Match user entered password to hashed password in database
 UserSchema.methods.matchPassword = async function (enteredPassword) {
-  // eslint-disable-next-line no-return-await
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
