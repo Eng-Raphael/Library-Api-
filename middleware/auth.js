@@ -16,12 +16,9 @@ exports.protect = asyncHandler(async (req, res, next) => {
     // Set token from Bearer token in header
     token = req.headers.authorization.split(' ')[1];
     // Set token from cookie
+  } else if (req.cookies.token) {
+    token = req.cookies.token;
   }
-  // here i commented this in order to put the header in each time
-  // but if un comment the cookies will be inerted by default no header required in each request .
-  // else if (req.cookies.token) {
-  //   token = req.cookies.token;
-  // }
 
   // Make sure token exists
   if (!token) {
