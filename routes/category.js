@@ -9,6 +9,8 @@ const {
   deleteCategory,
 } = require('../controllers/category');
 
+const { protect, authorize } = require('../middleware/auth');
+
 const advancedResults = require('../middleware/advancedResults');
 const Category = require('../models/Category');
 
@@ -17,10 +19,10 @@ router.get('/', getCategories);
 
 router.get('/:categoryId', getCategory);
 
-router.post('/', createCategory);
+router.post('/', protect, authorize('admin', 'super admin'), createCategory);
 
-router.put('/:categoryId', updateCategory);
+router.put('/:categoryId', protect, authorize('admin', 'super admin'), updateCategory);
 
-router.delete('/:categoryId', deleteCategory);
+router.delete('/:categoryId', protect, authorize('admin', 'super admin'), deleteCategory);
 
 module.exports = router;
