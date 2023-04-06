@@ -1,0 +1,19 @@
+[{
+  "_id": {
+    "$oid": "642e832f4a65e2763ca0a002"
+  },
+  "firstName": "rafy",
+  "lastName": "alfy",
+  "email": "rafy@example.com",
+  "password": "$2a$10$wtXyxPSnH.PXyCXJiOKvnOWKtBL24860obmqSdIbxzTr3RYcmsvKK",
+  "image": "photo_rafy_alfy.jpg",
+  "role": "admin",
+  "createdAt": {
+    "$date": "2023-04-06T08:30:39.792Z"
+  },
+  "updatedAt": {
+    "$date": "2023-04-06T08:30:39.792Z"
+  },
+  "username": "rafy_alfy",
+  "__v": 0
+}]

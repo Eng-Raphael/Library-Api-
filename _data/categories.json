@@ -1,0 +1,73 @@
+[{
+  "_id": {
+    "$oid": "642e992958fe44c800426780"
+  },
+  "name": "history",
+  "createdAt": {
+    "$date": "2023-04-06T10:04:25.767Z"
+  },
+  "updatedAt": {
+    "$date": "2023-04-06T10:04:25.767Z"
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "642e993758fe44c800426783"
+  },
+  "name": "Science fiction",
+  "createdAt": {
+    "$date": "2023-04-06T10:04:39.006Z"
+  },
+  "updatedAt": {
+    "$date": "2023-04-06T10:04:39.006Z"
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "642eb3f7e167574fe27aebf1"
+  },
+  "name": "horror",
+  "createdAt": {
+    "$date": "2023-04-06T11:58:47.208Z"
+  },
+  "updatedAt": {
+    "$date": "2023-04-06T11:58:47.208Z"
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "642eb403e167574fe27aebf4"
+  },
+  "name": "self development",
+  "createdAt": {
+    "$date": "2023-04-06T11:58:59.516Z"
+  },
+  "updatedAt": {
+    "$date": "2023-04-06T11:58:59.516Z"
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "642eb40ae167574fe27aebf7"
+  },
+  "name": "religous",
+  "createdAt": {
+    "$date": "2023-04-06T11:59:06.225Z"
+  },
+  "updatedAt": {
+    "$date": "2023-04-06T11:59:06.225Z"
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "642ebaf59f89bb8d6bfb2142"
+  },
+  "name": "fantasy",
+  "createdAt": {
+    "$date": "2023-04-06T12:28:37.935Z"
+  },
+  "updatedAt": {
+    "$date": "2023-04-06T12:28:37.935Z"
+  },
+  "__v": 0
+}]
