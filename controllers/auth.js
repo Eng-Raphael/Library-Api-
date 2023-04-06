@@ -171,38 +171,39 @@ exports.register = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  // Check for uploaded file
-  if (!req.files || !req.files.file) {
-    return res.status(400).json({ errors: ['Please upload a file'] });
+  let fileName = '';
+  // if image is uploaded
+  if (req.files && req.files.image) {
+    const { image } = req.files;
+
+    // Check if the file is an image
+    if (!image.mimetype.startsWith('image')) {
+      return res.status(400).json({ errors: ['Please upload an image file'] });
+    }
+
+    // Check file size
+    if (image.size > process.env.MAX_FILE_UPLOAD) {
+      return res.status(400).json({ errors: [`Please upload an image file less than ${process.env.MAX_FILE_UPLOAD}`] });
+    }
+
+    // Create custom file name
+    const fileExt = path.extname(image.name);
+    fileName = `photo_${firstName}_${lastName}${fileExt}`;
+
+    // Move file to upload directory
+    await image.mv(`${process.env.FILE_UPLOAD_PATH}/users/${fileName}`);
   }
 
-  const { file } = req.files;
-
-  // Check if the file is an image
-  if (!file.mimetype.startsWith('image')) {
-    return res.status(400).json({ errors: ['Please upload an image file'] });
-  }
-
-  // Check file size
-  if (file.size > process.env.MAX_FILE_UPLOAD) {
-    return res.status(400).json({ errors: [`Please upload an image file less than ${process.env.MAX_FILE_UPLOAD}`] });
-  }
-
-  // Create custom file name
-  const fileExt = path.extname(file.name);
-  const fileName = `photo_${firstName}_${lastName}${fileExt}`;
-
-  // Move file to upload directory
-  await file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${fileName}`);
-
-  // Create user
-  const user = await User.create({
+  let user = {
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     email: req.body.email,
     password: req.body.password,
-    image: fileName,
-  });
+  };
+  if (fileName) user.image = fileName;
+
+  // Save user
+  user = await User.create(user);
 
   sendTokenResponse(user, 200, res);
 });
@@ -332,5 +333,6 @@ const sendTokenResponse = (user, statuscode, res) => {
       userId: user._id,
       userRole: user.role,
       userName: user.username,
+      userImage: user.image,
     });
 };
