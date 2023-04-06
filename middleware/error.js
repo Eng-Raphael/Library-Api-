@@ -28,11 +28,6 @@ const errorHandler = (err, req, res, next) => {
 
   console.log(err.name);
 
-  if (!res || !res.status) {
-    // If res is not a valid response object
-    return next(error);
-  }
-
   res.status(error.statusCode || 500)
     .json(
       {
