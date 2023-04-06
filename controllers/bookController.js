@@ -13,8 +13,7 @@ const Author = require('../models/Author');
 // @route GET /api/books
 // @access Public
 exports.getBooks = asyncHandler(async (req, res) => {
-  const books = await Book.find();
-  res.status(200).json({ success: true, data: books });
+  res.status(200).json(res.advancedResults);
 });
 
 // @desc Get a book
