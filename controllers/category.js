@@ -9,8 +9,7 @@ const Category = require('../models/Category');
 // @route GET /api/categories
 // @access Public
 exports.getCategories = asyncHandler(async (req, res) => {
-  const categories = Category.find();
-  res.status(200).json({ success: true, data: categories });
+  res.status(200).json(res.advancedResults);
 });
 
 // @desc Get a category
@@ -61,6 +60,8 @@ exports.createCategory = [
 // @route PUT /api/categories/:categoryId
 // @access Private (Admin)
 exports.updateCategory = asyncHandler(async (req, res, next) => {
+  console.log(req.params);
+  console.log(req.body);
   let category = await Category.findById(req.params.categoryId);
 
   if (!category) {
@@ -70,10 +71,11 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
   const { name } = req.body;
 
   if (name) {
-    category = await Category.findByIdAndUpdate(req.params.categoryId, name, {
-      new: true,
-      runValidators: true,
-    });
+    category = await Category.findByIdAndUpdate(
+      req.params.categoryId,
+      { name },
+      { new: true, runValidators: true },
+    );
   }
 
   res.status(200).json({ success: true, data: category });
