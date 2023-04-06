@@ -19,10 +19,10 @@ router.get('/', getCategories);
 
 router.get('/:categoryId', getCategory);
 
-router.post('/', protect, authorize('admin', 'super admin'), createCategory);
+router.post('/', protect, authorize('admin'), createCategory);
 
-router.put('/:categoryId', protect, authorize('admin', 'super admin'), updateCategory);
+router.put('/:categoryId', protect, authorize('admin'), updateCategory);
 
-router.delete('/:categoryId', protect, authorize('admin', 'super admin'), deleteCategory);
+router.delete('/:categoryId', protect, authorize('admin'), deleteCategory);
 
 module.exports = router;

@@ -19,12 +19,12 @@ router
   .get(advancedResults(Author), protect, authorize('admin', 'super admin'), getAuthors);
 router.get('/', protect, getAuthors);
 
-router.get('/:authorId', protect, authorize('admin', 'super admin'), getAuthor);
+router.get('/:authorId', protect, authorize('admin'), getAuthor);
 
-router.post('/', protect, authorize('admin', 'super admin'), createAuthor);
+router.post('/', protect, authorize('admin'), createAuthor);
 
-router.put('/:authorId', protect, authorize('admin', 'super admin'), updateAuthor);
+router.put('/:authorId', protect, authorize('admin'), updateAuthor);
 
-router.delete('/:authorId', protect, authorize('admin', 'super admin'), deleteAuthor);
+router.delete('/:authorId', protect, authorize('admin'), deleteAuthor);
 
 module.exports = router;

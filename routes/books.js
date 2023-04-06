@@ -20,10 +20,10 @@ router.get('/', getBooks);
 
 router.get('/:bookId', getBook);
 
-router.post('/', protect, authorize('admin', 'super admin'), createBook);
+router.post('/', protect, authorize('admin'), createBook);
 
-router.put('/:bookId', protect, authorize('admin', 'super admin'), updateBook);
+router.put('/:bookId', protect, authorize('admin'), updateBook);
 
-router.delete('/:bookId', protect, authorize('admin', 'super admin'), deleteBook);
+router.delete('/:bookId', protect, authorize('admin'), deleteBook);
 
 module.exports = router;
