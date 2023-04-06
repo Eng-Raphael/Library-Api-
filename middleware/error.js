@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable consistent-return */
 const ErrorResponse = require('../utils/errorResponse');
 
