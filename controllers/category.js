@@ -37,7 +37,8 @@ exports.createCategory = [
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ errors });
+        const errorArray = errors.array().map((error) => error.msg);
+        return res.status(400).json({ errors: errorArray });
       }
 
       const category = new Category({

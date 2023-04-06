@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 const fs = require('fs');
 const path = require('path');
 const { body, validationResult } = require('express-validator');
@@ -38,64 +39,58 @@ exports.createBook = [
     .withMessage('Book name must be between 3 and 50 characters'),
   body('category').exists().withMessage('Category is required'),
   body('author').exists().withMessage('Author is required'),
-  body('avgRating').isNumeric().withMessage('Average rating must be a number'),
 
-  // eslint-disable-next-line consistent-return
   async (req, res, next) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        const errorArray = errors.array().map((error) => error.msg);
+        return res.status(400).json({ errors: errorArray });
       }
 
       if (req.body.category) {
         const foundCategory = await Category.findById(req.body.category);
         if (!foundCategory) {
-          return next(new ErrorResponse(`Category ${req.body.category} not found`, 404));
+          return res.status(404).json({ message: `Category ${req.body.category} not found` });
         }
       }
       if (req.body.author) {
         const foundAuthor = await Author.findById(req.body.author);
         if (!foundAuthor) {
-          return next(new ErrorResponse(`Author ${req.body.author} not found`, 404));
+          return res.status(404).json({ message: `Author ${req.body.author} not found` });
         }
       }
       const book = new Book({
         name: req.body.name,
         category: req.body.category,
         author: req.body.author,
-        avgRating: req.body.avgRating,
         reviews: req.body.reviews,
       });
 
       if (!req.files) {
-        return next(new ErrorResponse('Please upload a file', 404));
+        return res.status(404).json({ message: 'Please upload a file' });
       }
 
       const file = req.files.image;
 
       if (!file.mimetype.startsWith('image')) {
-        return next(new ErrorResponse('Please upload an image file', 404));
+        return res.status(404).json({ message: 'Please upload an image file' });
       }
 
       if (file.size > process.env.MAX_FILE_UPLOAD) {
-        return next(
-          new ErrorResponse(
-            `Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`,
-            404,
-          ),
-        );
+        return res.status(404).json({
+          message: `Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`,
+        });
       }
 
       file.name = `photo_profile_${Date.now()}${path.parse(file.name).ext}`;
 
       file.mv(
         `${process.env.FILE_UPLOAD_PATH}/books/${file.name}`,
-        // eslint-disable-next-line consistent-return
         async (err) => {
           if (err) {
             console.error(err);
-            return next(new ErrorResponse('Error while file upload', 500));
+            return res.status(500).json({ message: 'Error while file upload' });
           }
 
           book.image = file.name;
