@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable consistent-return */
 const fs = require('fs');
 const path = require('path');
@@ -130,7 +131,7 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ errors: errorArray });
   }
   if (!book) {
-    return next(new ErrorResponse('Book not found', 404));
+    return res.status(404).json({ errors: 'Book not found' });
   }
 
   const { category, author } = req.body;
@@ -138,14 +139,14 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
   if (category) {
     const foundCategory = await Category.findById(category);
     if (!foundCategory) {
-      return next(new ErrorResponse(`Category ${category} not found`, 404));
+      return res.status(404).json({ errors: `Category ${category} not found` });
     }
   }
 
   if (author) {
     const foundAuthor = await Author.findById(author);
     if (!foundAuthor) {
-      return next(new ErrorResponse(`Author ${author} not found`, 404));
+      return res.status(404).json({ errors: `Author ${author} not found` });
     }
   }
 
@@ -153,16 +154,11 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
     const { file } = req.files.file;
 
     if (!file.mimetype.startsWith('image')) {
-      return next(new ErrorResponse('Please upload an image file', 400));
+      return res.status(400).json({ errors: 'Please upload an image file' });
     }
 
     if (file.size > process.env.MAX_FILE_UPLOAD) {
-      return next(
-        new ErrorResponse(
-          `Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,
-          400,
-        ),
-      );
+      return res.status(400).json({ errors: `Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}` });
     }
 
     // eslint-disable-next-line no-underscore-dangle
@@ -174,7 +170,7 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
       async (err) => {
         if (err) {
           console.error(err);
-          return next(new ErrorResponse('Error while file upload', 500));
+          return res.status(500).json({ errors: 'Error while file upload' });
         }
       },
     );

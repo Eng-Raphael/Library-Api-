@@ -1,6 +1,7 @@
+/* eslint-disable consistent-return */
 const ErrorResponse = require('../utils/errorResponse');
 
-const errorHandler = (err, req, res) => {
+const errorHandler = (err, req, res, next) => {
   let error = { ...err };
 
   error.message = err.message;
@@ -26,6 +27,11 @@ const errorHandler = (err, req, res) => {
   }
 
   console.log(err.name);
+
+  if (!res || !res.status) {
+    // If res is not a valid response object
+    return next(error);
+  }
 
   res.status(error.statusCode || 500)
     .json(
