@@ -51,13 +51,13 @@ exports.createBook = [
       if (req.body.category) {
         const foundCategory = await Category.findById(req.body.category);
         if (!foundCategory) {
-          return res.status(404).json({ message: `Category ${req.body.category} not found` });
+          return res.status(404).json({ errors: `Category ${req.body.category} not found` });
         }
       }
       if (req.body.author) {
         const foundAuthor = await Author.findById(req.body.author);
         if (!foundAuthor) {
-          return res.status(404).json({ message: `Author ${req.body.author} not found` });
+          return res.status(404).json({ errors: `Author ${req.body.author} not found` });
         }
       }
       const book = new Book({
@@ -68,13 +68,13 @@ exports.createBook = [
       });
 
       if (!req.files) {
-        return res.status(404).json({ message: 'Please upload a file' });
+        return res.status(404).json({ errors: 'Please upload a file' });
       }
 
       const file = req.files.image;
 
       if (!file.mimetype.startsWith('image')) {
-        return res.status(404).json({ message: 'Please upload an image file' });
+        return res.status(404).json({ errors: 'Please upload an image file' });
       }
 
       if (file.size > process.env.MAX_FILE_UPLOAD) {
@@ -90,7 +90,7 @@ exports.createBook = [
         async (err) => {
           if (err) {
             console.error(err);
-            return res.status(500).json({ message: 'Error while file upload' });
+            return res.status(500).json({ errors: 'Error while file upload' });
           }
 
           book.image = file.name;
