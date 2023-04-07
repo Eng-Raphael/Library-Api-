@@ -61,8 +61,6 @@ exports.createCategory = [
 // @route PUT /api/categories/:categoryId
 // @access Private (Admin)
 exports.updateCategory = asyncHandler(async (req, res, next) => {
-  console.log(req.params);
-  console.log(req.body);
   let category = await Category.findById(req.params.categoryId);
 
   if (!category) {
