@@ -31,3 +31,21 @@ exports.addBookToUser = asyncHandler(async (req, res, next) => {
     res.status(500).json({ success: false, errors: ['User Not found to add book'] });
   }
 });
+
+// @desc      update book to user
+// @route     PUT /api/user/book/:id
+// @access    Private
+exports.updateBookToUser = asyncHandler(async (req, res, next) => {
+  const { shelve } = req.body;
+  const { rating } = req.body;
+  if (req.user._id) {
+    const user = await User.findOneAndUpdate(
+      { _id: req.user._id, 'books.bookId': req.params.id },
+      { $set: { 'books.$.shelve': shelve, 'books.$.rating': rating } },
+      { new: true },
+    );
+    res.status(200).json({ success: true, data: user });
+  } else {
+    res.status(500).json({ success: false, errors: ['User Not found to add book'] });
+  }
+});
