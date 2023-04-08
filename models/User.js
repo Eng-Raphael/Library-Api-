@@ -45,16 +45,20 @@ const UserSchema = new mongoose.Schema({
     default: 'user',
   },
   books: [{
-    type: mongoose.Schema.ObjectId,
-    ref: 'Book',
-    required: false,
+    bookId: {
+      type: mongoose.Types.ObjectId, // <-- specify that bookId should be an ObjectId
+      required: true,
+    },
     shelve: {
-      enum: ['READING', 'READ', 'WANT TO READ'],
-      default: 'WANT TO READ',
+      type: String,
+      enum: ['READING', 'READ', 'WANT_TO_READ'],
+      default: 'READING',
     },
     rating: {
       type: Number,
-      default: 0,
+      min: 0,
+      max: 5,
+      default: null,
     },
   }],
 }, { timestamps: true });

@@ -18,6 +18,7 @@ const cors = require('cors');
 const xss = require('xss-clean');
 const auth = require('./routes/auth');
 const books = require('./routes/books');
+const user = require('./routes/user');
 
 // after route files loasd xss-clean
 const connectDB = require('./config/db');
@@ -77,7 +78,7 @@ app.use('/api/books', books);
 app.use('/api/categories', category);
 app.use('/api/auth', auth);
 app.use('/api/authors', author);
-
+app.use('/api/user', user);
 // error middleware
 app.use(errorHandler);
 
