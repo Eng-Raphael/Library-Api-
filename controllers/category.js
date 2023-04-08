@@ -4,7 +4,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 const Category = require('../models/Category');
-
+const Book = require('../models/Book');
 // @desc Get all categories
 // @route GET /api/categories
 // @access Public
@@ -12,6 +12,21 @@ exports.getCategories = asyncHandler(async (req, res) => {
   res.status(200).json(res.advancedResults);
 });
 
+// @desc Get all books belong to category
+// @route GET /api/categories/:id/books
+// @access Public
+exports.getAllBooksOfCategory = asyncHandler(async (req, res) => {
+  const categoryId = req.params.id;
+  const category = await Category.findById(categoryId);
+  if (!category) {
+    return res.status(404).json({ success: false, errors: ['Category not found'] });
+  }
+  const books = await Book.find({ category: categoryId }).populate('category');
+  if (!books || books.length === 0) {
+    return res.status(404).json({ success: false, errors: ['No books found for this category'] });
+  }
+  res.status(200).json({ success: true, count: books.length, data: books });
+});
 // @desc Get a category
 // @route GET /api/categories/:categoryId
 // @access Public
