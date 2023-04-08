@@ -230,26 +230,26 @@ exports.register = asyncHandler(async (req, res, next) => {
 exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    res.status(400).json({ errors: ['Please provide an email and password'] });
+    return res.status(400).json({ errors: ['Please provide an email and password'] });
   }
 
   // Check if email is valid
   const isValidEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
   if (!isValidEmail) {
-    res.status(400).json({ errors: ['Please provide a valid email'] });
+    return res.status(400).json({ errors: ['Please provide a valid email'] });
   }
 
   // Find user by email
   const user = await User.findOne({ email }).select('+password');
 
   if (!user) {
-    res.status(401).json({ errors: ['Invalid credentials'] });
+    return res.status(401).json({ errors: ['Invalid credentials'] });
   }
 
   // Check if password is valid
   const isMatch = await user.matchPassword(password);
   if (!isMatch) {
-    res.status(401).json({ errors: ['Invalid credentials'] });
+    return res.status(401).json({ errors: ['Invalid credentials'] });
   }
 
   sendTokenResponse(user, 200, res);
@@ -333,6 +333,8 @@ const sendTokenResponse = (user, statuscode, res) => {
       userId: user._id,
       userRole: user.role,
       userName: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
       userImage: user.image,
     });
 };
