@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 const mongoose = require('mongoose');
 
 const BookSchema = new mongoose.Schema({
@@ -25,11 +26,23 @@ const BookSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  totalRatings: {
+    type: Number,
+    default: 0,
+  },
   reviews: [
     {
       type: String,
     },
   ],
 }, { timestamps: true });
+
+BookSchema.methods.addRating = function (rating) {
+  // Calculate the new average rating of the book
+  const oldRating = this.avgRating * this.totalRatings;
+  this.totalRatings += 1;
+  this.avgRating = (oldRating + rating) / this.totalRatings;
+  return this.save();
+};
 
 module.exports = mongoose.model('Book', BookSchema);

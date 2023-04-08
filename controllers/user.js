@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /* eslint-disable max-len */
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-underscore-dangle */
@@ -6,7 +7,7 @@
 /* eslint-disable consistent-return */
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
-
+const Book = require('../models/Book');
 // @desc      add book to user
 // @route     POST /api/user/book/:id
 // @access    Private
@@ -40,7 +41,11 @@ exports.addBookToUser = asyncHandler(async (req, res, next) => {
       },
       { new: true },
     );
-    res.status(200).json({ success: true, data: user });
+
+    const book = await Book.findById(bookId);
+    book.addRating(req.body.rating);
+
+    res.status(200).json({ success: true, data: user, msg: 'avg rating added' });
   } else {
     res.status(500).json({ success: false, errors: ['User Not found to add book'] });
   }
@@ -67,7 +72,10 @@ exports.updateBookToUser = asyncHandler(async (req, res, next) => {
       });
     }
 
-    res.status(200).json({ success: true, data: user });
+    const book = await Book.findById(req.params.id);
+    book.addRating(rating);
+
+    res.status(200).json({ success: true, data: user, msg: 'avgRating added' });
   } else {
     res.status(500).json({ success: false, errors: ['User Not found to add book'] });
   }
