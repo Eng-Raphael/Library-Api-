@@ -8,12 +8,43 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 const Author = require('../models/Author');
-// const Book = require('../models/Book');
+const Book = require('../models/Book');
+/* eslint-disable no-underscore-dangle */
+
 // @desc Get all authors
 // @route GET /api/authors
+// @route GET /api/authors/:authorId/books
 // @access Public
 exports.getAuthors = asyncHandler(async (req, res) => {
-  res.status(200).json(res.advancedResults);
+  if (req.params.id) {
+    const author = await Author.findById(req.params.id).select('_id firstName lastName');
+    if (!author) {
+      return res.status(404).json({
+        success: false,
+        errors: ['Author not found'],
+      });
+    }
+    const authorBooks = await Book.find({ author: author._id }).populate('category', 'name');
+    if (authorBooks.length === 0) {
+      return res.status(404).json({
+        success: false,
+        errors: ['Books not found for the author'],
+      });
+    }
+    const books = authorBooks.map((book) => ({
+      name: book.name,
+      image: book.image,
+      category: book.category ? book.category.name : '',
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: books,
+      author,
+    });
+  } else {
+    res.status(200).json(res.advancedResults);
+  }
 });
 
 // @desc Get single author
@@ -182,7 +213,7 @@ exports.deleteAuthor = asyncHandler(async (req, res, next) => {
 });
 
 // @desc get author books
-// @route DELETE /api/authors/:authorId/books
+// @route GET /api/authors/:authorId/books
 // @access Private
 // exports.getBooksByAuthor = asyncHandler(async (req, res, next) => {
 

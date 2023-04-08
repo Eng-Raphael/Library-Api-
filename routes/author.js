@@ -20,7 +20,7 @@ router
 router.get('/', protect, getAuthors);
 
 router.get('/:authorId', protect, authorize('admin'), getAuthor);
-
+router.get('/:id/books', protect, authorize('admin'), getAuthors);
 router.post('/', protect, authorize('admin'), createAuthor);
 
 router.put('/:authorId', protect, authorize('admin'), updateAuthor);
