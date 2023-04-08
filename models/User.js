@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-return-await */
 /* eslint-disable func-names */
 /* eslint-disable no-useless-escape */
@@ -65,17 +67,21 @@ const UserSchema = new mongoose.Schema({
 }, { timestamps: true });
 /* eslint-disable prefer-destructuring */
 
-UserSchema.post('save', async function (doc, next) {
+UserSchema.post('save', async (doc, next) => {
   // check if books array has been modified
-  if (this.isModified('books')) {
-    // find the book document and update avgRating field
-    const bookId = this.books[this.books.length - 1].bookId;
-    const book = await Book.findById(bookId);
-    const numRatings = book.reviews.length;
-    const sumRatings = book.reviews.reduce((sum, rating) => sum + rating, 0);
-    const avgRating = sumRatings / numRatings;
-    book.avgRating = avgRating;
-    await book.save();
+  if (doc.isModified('books')) {
+    // loop through the books array to find the book that was just updated
+    for (const book of doc.books) {
+      if (book.isModified('rating')) {
+        const bookId = book.bookId;
+        const bookDoc = await Book.findById(bookId);
+        const numRatings = bookDoc.reviews.length;
+        const sumRatings = bookDoc.reviews.reduce((sum, rating) => sum + rating, 0);
+        const avgRating = sumRatings / numRatings;
+        bookDoc.avgRating = avgRating;
+        await bookDoc.save();
+      }
+    }
   }
   next();
 });
