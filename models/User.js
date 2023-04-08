@@ -5,6 +5,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Book = require('./Book');
 // const crypto = require('crypto');
 
 const UserSchema = new mongoose.Schema({
@@ -62,6 +63,22 @@ const UserSchema = new mongoose.Schema({
     },
   }],
 }, { timestamps: true });
+/* eslint-disable prefer-destructuring */
+
+UserSchema.post('save', async function (doc, next) {
+  // check if books array has been modified
+  if (this.isModified('books')) {
+    // find the book document and update avgRating field
+    const bookId = this.books[this.books.length - 1].bookId;
+    const book = await Book.findById(bookId);
+    const numRatings = book.reviews.length;
+    const sumRatings = book.reviews.reduce((sum, rating) => sum + rating, 0);
+    const avgRating = sumRatings / numRatings;
+    book.avgRating = avgRating;
+    await book.save();
+  }
+  next();
+});
 
 UserSchema.pre('save', async function (next) {
   this.username = `${this.firstName}_${this.lastName}`.toLowerCase();
