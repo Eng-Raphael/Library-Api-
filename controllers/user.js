@@ -85,25 +85,25 @@ exports.updateBookToUser = asyncHandler(async (req, res, next) => {
 // @route     DELETE /api/user/book/:id
 // @access    Private
 
-exports.deleteBookForUser = asyncHandler(async (req, res, next) => {
-  const bookId = req.params.id;
+// exports.deleteBookForUser = asyncHandler(async (req, res, next) => {
+//   const bookId = req.params.id;
 
-  if (req.user._id) {
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { $pull: { books: { bookId } } },
-      { new: true },
-    );
+//   if (req.user._id) {
+//     const user = await User.findByIdAndUpdate(
+//       req.user._id,
+//       { $pull: { books: { bookId } } },
+//       { new: true },
+//     );
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        errors: [`Book with id ${bookId} not found in user's list.`],
-      });
-    }
+//     if (!user) {
+//       return res.status(404).json({
+//         success: false,
+//         errors: [`Book with id ${bookId} not found in user's list.`],
+//       });
+//     }
 
-    res.status(200).json({ success: true, data: user });
-  } else {
-    res.status(500).json({ success: false, errors: ['User Not found to add book'] });
-  }
-});
+//     res.status(200).json({ success: true, data: user });
+//   } else {
+//     res.status(500).json({ success: false, errors: ['User Not found to add book'] });
+//   }
+// });
