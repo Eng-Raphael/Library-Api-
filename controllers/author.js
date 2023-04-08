@@ -8,7 +8,7 @@ const asyncHandler = require('../middleware/async');
 const ErrorResponse = require('../utils/errorResponse');
 
 const Author = require('../models/Author');
-
+// const Book = require('../models/Book');
 // @desc Get all authors
 // @route GET /api/authors
 // @access Public
@@ -180,3 +180,10 @@ exports.deleteAuthor = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
+
+// @desc get author books
+// @route DELETE /api/authors/:authorId/books
+// @access Private
+// exports.getBooksByAuthor = asyncHandler(async (req, res, next) => {
+
+// });

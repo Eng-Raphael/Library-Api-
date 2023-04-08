@@ -40,13 +40,6 @@ const AuthorSchema = new mongoose.Schema({
     type: String,
     default: 'default.png',
   },
-  books: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: 'Book',
-      required: false,
-    },
-  ],
 }, { timestamps: true });
 
 module.exports = mongoose.model('Author', AuthorSchema);

@@ -15,7 +15,7 @@ const Book = require('../models/Book');
 
 const { protect, authorize } = require('../middleware/auth');
 
-router.route('/').get(advancedResults(Book), getBooks);
+router.route('/').get(advancedResults(Book, { path: 'author', select: 'firstName lastName' }), getBooks);
 router.get('/', getBooks);
 
 router.get('/:bookId', getBook);
