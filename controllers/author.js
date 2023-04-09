@@ -193,6 +193,9 @@ exports.deleteAuthor = asyncHandler(async (req, res, next) => {
       );
     }
 
+    // Delete all books related to the author
+    await Book.deleteMany({ author: author._id });
+
     if (author.image !== 'default.png') {
       const imagePath = `${process.env.FILE_UPLOAD_PATH}/authors/${author.image}`;
 
