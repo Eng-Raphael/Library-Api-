@@ -190,7 +190,7 @@ exports.register = asyncHandler(async (req, res, next) => {
 
   // Create custom file name
   const fileExt = path.extname(file.name);
-  const fileName = `photo_${firstName}_${lastName}${fileExt}`;
+  const fileName = `photo_user_${firstName}_${lastName}${fileExt}`;
 
   // Move file to upload directory
   await file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${fileName}`);

@@ -16,7 +16,6 @@ const Book = require('../models/Book');
 const Category = require('../models/Category');
 const Author = require('../models/Author');
 const User = require('../models/User');
-
 // @desc Get all books
 // @route GET /api/books
 // @access Public
@@ -90,7 +89,7 @@ exports.createBook = [
         });
       }
 
-      file.name = `${req.protocol}://${req.get('host')}/uploads/books/photo_book_${req.body.name}${path.parse(file.name).ext}`;
+      file.name = `photo_profile_${req.body.name}${path.parse(file.name).ext}`;
 
       file.mv(
         `${process.env.FILE_UPLOAD_PATH}/books/${file.name}`,
@@ -170,7 +169,7 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
     }
 
     // eslint-disable-next-line no-underscore-dangle
-    file.name = `${req.protocol}://${req.get('host')}/uploads/books/photo_book_${book.name}${path.parse(file.name).ext}`;
+    file.name = `photo_book_${req.body.name}${path.parse(file.name).ext}`;
 
     file.mv(
       `${process.env.FILE_UPLOAD_PATH}/books/${file.name}`,

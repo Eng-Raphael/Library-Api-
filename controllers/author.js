@@ -99,7 +99,7 @@ exports.createAuthor = [
         });
       }
 
-      file.name = `photo_profile_${Date.now()}${path.parse(file.name).ext}`;
+      file.name = `photo_author_${req.body.firstName + req.body.lastName}${path.parse(file.name).ext}`;
 
       file.mv(
         `${process.env.FILE_UPLOAD_PATH}/authors/${file.name}`,
@@ -155,7 +155,7 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
     }
 
     // eslint-disable-next-line no-underscore-dangle
-    file.name = `photo_${author._id}${path.parse(file.name).ext}`;
+    file.name = `photo_author_${author.firstName + author.lastName}${path.parse(file.name).ext}`;
 
     file.mv(
       `${process.env.FILE_UPLOAD_PATH}/authors/${file.name}`,
