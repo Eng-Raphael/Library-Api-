@@ -9,7 +9,7 @@ const Category = require('../models/Category');
 // @route GET /api/categories
 // @access Public
 exports.getCategories = asyncHandler(async (req, res) => {
-  const categories = Category.find();
+  const categories = await Category.find();
   res.status(200).json({ success: true, data: categories });
 });
 
@@ -63,20 +63,23 @@ exports.createCategory = [
 exports.updateCategory = asyncHandler(async (req, res, next) => {
   let category = await Category.findById(req.params.categoryId);
 
+  console.log(category);
   if (!category) {
     return next(new ErrorResponse(`Category with id ${req.params.categoryId} not found`, 404));
   }
 
+  console.log(req.body);
   const { name } = req.body;
 
   if (name) {
-    category = await Category.findByIdAndUpdate(req.params.categoryId, name, {
+    category = await Category.findByIdAndUpdate(req.params.categoryId, req.body, {
       new: true,
       runValidators: true,
     });
   }
 
-  res.status(200).json({ success: true, data: category });
+  console.log(category);
+  return res.status(200).json({ success: true, data: category });
 });
 
 // @desc Delete a category

@@ -69,18 +69,20 @@ app.use(hpp());
 app.use(cors());
 
 // set static folder
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
+// app.use('/public', express.static('public'));
+// app.use("/public", express.static(path.join("public/uploads"))); 
 
 // mount routes
 app.use('/api/books', books);
+app.use('/api/categories', category);
 
 app.use('/api/v1/auth', auth);
 
 // mount routes
 
-app.use('/api/categories', category);
-
 app.use('/api/auth', auth);
+
 
 // mount routes
 app.use('/api/auth', auth);
