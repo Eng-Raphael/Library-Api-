@@ -16,6 +16,7 @@ const Book = require('../models/Book');
 const Category = require('../models/Category');
 const Author = require('../models/Author');
 const User = require('../models/User');
+
 // @desc Get all books
 // @route GET /api/books
 // @access Public
@@ -89,7 +90,7 @@ exports.createBook = [
         });
       }
 
-      file.name = `photo_profile_${Date.now()}${path.parse(file.name).ext}`;
+      file.name = `${req.protocol}://${req.get('host')}/uploads/books/photo_book_${req.body.name}${path.parse(file.name).ext}`;
 
       file.mv(
         `${process.env.FILE_UPLOAD_PATH}/books/${file.name}`,
@@ -102,7 +103,8 @@ exports.createBook = [
           book.image = file.name;
 
           await book.save();
-
+          // // return the image URL in the response
+          // const imageUrl = `${req.protocol}://${req.get('host')}/uploads/books/${file.name}`;
           res.status(201).json({
             success: true,
             data: book,
@@ -168,7 +170,7 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
     }
 
     // eslint-disable-next-line no-underscore-dangle
-    file.name = `photo_${book._id}${path.parse(file.name).ext}`;
+    file.name = `${req.protocol}://${req.get('host')}/uploads/books/photo_book_${book.name}${path.parse(file.name).ext}`;
 
     file.mv(
       `${process.env.FILE_UPLOAD_PATH}/books/${file.name}`,
