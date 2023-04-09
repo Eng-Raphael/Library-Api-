@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable consistent-return */
 const { body, validationResult } = require('express-validator');
 const asyncHandler = require('../middleware/async');
@@ -108,6 +109,9 @@ exports.deleteCategory = async (req, res, next) => {
         new ErrorResponse(`Category not found with id of ${req.params.categoryId}`, 404),
       );
     }
+
+    // Delete all books related to the category
+    await Book.deleteMany({ category: category._id });
 
     await category.deleteOne();
 
