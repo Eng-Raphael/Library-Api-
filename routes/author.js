@@ -16,7 +16,7 @@ const Author = require('../models/Author');
 
 router
   .route('/')
-  .get(advancedResults(Author), protect, authorize('admin', 'super admin'), getAuthors);
+  .get(advancedResults(Author), protect, getAuthors);
 router.get('/', protect, getAuthors);
 
 router.get('/:authorId', protect, authorize('admin'), getAuthor);
