@@ -87,6 +87,7 @@ app.use('/api/categories', category);
 app.use('/api/auth', auth);
 app.use('/api/authors', author);
 app.use('/api/user', user);
+
 // error middleware
 app.use(errorHandler);
 
