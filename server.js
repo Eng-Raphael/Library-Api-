@@ -68,10 +68,16 @@ app.use(limiter);
 app.use(hpp());
 
 // Enable CORS
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:4200',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+};
+app.use(cors(corsOptions));
 
 // set static folder
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+
+// app.use(express.static(path.join(__dirname, 'public')));
 
 // mount routes
 app.use('/api/books', books);
