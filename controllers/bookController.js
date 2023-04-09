@@ -4,6 +4,8 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-unused-vars */
 /* eslint-disable consistent-return */
+/* eslint-disable no-console */
+
 const fs = require('fs');
 const path = require('path');
 const { body, validationResult } = require('express-validator');

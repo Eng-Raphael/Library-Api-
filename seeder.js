@@ -1,4 +1,6 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-console */
+
 const fs = require('fs');
 const mongoose = require('mongoose');
 const colors = require('colors');
