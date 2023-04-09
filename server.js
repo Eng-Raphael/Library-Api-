@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const fileupload = require('express-fileupload');
 
+// eslint-disable-next-line no-unused-vars
 const colors = require('colors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -17,6 +18,7 @@ const cors = require('cors');
 const xss = require('xss-clean');
 const auth = require('./routes/auth');
 const books = require('./routes/books');
+const user = require('./routes/user');
 
 // after route files loasd xss-clean
 const connectDB = require('./config/db');
@@ -66,28 +68,24 @@ app.use(limiter);
 app.use(hpp());
 
 // Enable CORS
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:4200',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+};
+app.use(cors(corsOptions));
 
 // set static folder
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
+
 // app.use(express.static(path.join(__dirname, 'public')));
-// app.use('/public', express.static('public'));
-// app.use("/public", express.static(path.join("public/uploads"))); 
 
 // mount routes
 app.use('/api/books', books);
 app.use('/api/categories', category);
-
-app.use('/api/v1/auth', auth);
-
-// mount routes
-
-app.use('/api/auth', auth);
-
-
-// mount routes
 app.use('/api/auth', auth);
 app.use('/api/authors', author);
-
+app.use('/api/user', user);
+// error middleware
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

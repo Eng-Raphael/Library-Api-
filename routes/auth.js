@@ -7,12 +7,11 @@ const {
   updateDetails,
   updatePassword,
   logout,
-  userPhotoUpload,
 } = require('../controllers/auth');
 
 const router = express.Router();
 
-const { protect, authorize } = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
 // router
 // .route('/:id/photo')

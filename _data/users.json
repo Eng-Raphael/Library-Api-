@@ -1,0 +1,108 @@
+[{
+  "_id": {
+    "$oid": "642e832f4a65e2763ca0a002"
+  },
+  "firstName": "rafy",
+  "lastName": "alfy",
+  "email": "rafy@example.com",
+  "password": "$2a$10$wtXyxPSnH.PXyCXJiOKvnOWKtBL24860obmqSdIbxzTr3RYcmsvKK",
+  "image": "photo_rafy_alfy.jpg",
+  "role": "admin",
+  "books": [],
+  "createdAt": {
+    "$date": "2023-04-06T08:30:39.792Z"
+  },
+  "updatedAt": {
+    "$date": "2023-04-06T08:30:39.792Z"
+  },
+  "username": "rafy_alfy",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "642ecfe946fe10264956ddd5"
+  },
+  "firstName": "david",
+  "lastName": "alfy",
+  "email": "david@example.com",
+  "password": "$2a$10$f7mAT24/rsMzj3iXWet7d.MWS7wUEQASmfmTZLbPcjvYu3MooZBT.",
+  "image": "photo_david_alfy.jpg",
+  "role": "user",
+  "books": [],
+  "createdAt": {
+    "$date": "2023-04-06T13:58:02.007Z"
+  },
+  "updatedAt": {
+    "$date": "2023-04-06T13:58:02.007Z"
+  },
+  "username": "david_alfy",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "642ed27e46fe10264956dddb"
+  },
+  "firstName": "jhon",
+  "lastName": "alfy",
+  "email": "jhon@example.com",
+  "password": "$2a$10$8F4B0ZfJzsTaK5Stf.eKWe9C6CwwRyjvDXyP20mj21PcCaJqRdqAK",
+  "image": "photo_jhon_alfy.jpg",
+  "role": "admin",
+  "books": [],
+  "createdAt": {
+    "$date": "2023-04-06T14:09:02.973Z"
+  },
+  "updatedAt": {
+    "$date": "2023-04-06T14:09:02.973Z"
+  },
+  "username": "jhon_alfy",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "64313201a8b69f1d7a5b26aa"
+  },
+  "firstName": "ihab",
+  "lastName": "alfy",
+  "email": "ihab@example.com",
+  "password": "$2a$10$zYeQbR71NtXDnhns2RCgVOppEHvmr3.5mHXNMs1QJ3gWNP0ZA0r6S",
+  "image": "photo_ihab_alfy.jpg",
+  "role": "admin",
+  "books": [
+    {
+      "bookId": {
+        "$oid": "642ebf60054171968eda322b"
+      },
+      "shelve": "READING",
+      "rating": null,
+      "_id": {
+        "$oid": "643134a13c14336a333d6574"
+      }
+    },
+    {
+      "bookId": {
+        "$oid": "642ebf60054171968eda322b"
+      },
+      "shelve": "READING",
+      "rating": 3,
+      "_id": {
+        "$oid": "643134af3c14336a333d6579"
+      }
+    },
+    {
+      "bookId": {
+        "$oid": "642eb9609f89bb8d6bfb2135"
+      },
+      "shelve": "READING",
+      "rating": 3,
+      "_id": {
+        "$oid": "643135843c14336a333d6589"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2023-04-08T09:21:05.458Z"
+  },
+  "updatedAt": {
+    "$date": "2023-04-08T14:01:15.315Z"
+  },
+  "username": "ihab_alfy",
+  "__v": 0
+}]

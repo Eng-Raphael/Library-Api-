@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable consistent-return */
 const fs = require('fs');
 const path = require('path');
 const { body, validationResult } = require('express-validator');
@@ -12,8 +14,7 @@ const Author = require('../models/Author');
 // @route GET /api/books
 // @access Public
 exports.getBooks = asyncHandler(async (req, res) => {
-  const books = await Book.find();
-  res.status(200).json({ success: true, data: books });
+  res.status(200).json(res.advancedResults);
 });
 
 // @desc Get a book
@@ -38,64 +39,58 @@ exports.createBook = [
     .withMessage('Book name must be between 3 and 50 characters'),
   body('category').exists().withMessage('Category is required'),
   body('author').exists().withMessage('Author is required'),
-  body('avgRating').isNumeric().withMessage('Average rating must be a number'),
 
-  // eslint-disable-next-line consistent-return
   async (req, res, next) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        const errorArray = errors.array().map((error) => error.msg);
+        return res.status(400).json({ errors: errorArray });
       }
 
       if (req.body.category) {
         const foundCategory = await Category.findById(req.body.category);
         if (!foundCategory) {
-          return next(new ErrorResponse(`Category ${req.body.category} not found`, 404));
+          return res.status(404).json({ errors: `Category ${req.body.category} not found` });
         }
       }
       if (req.body.author) {
         const foundAuthor = await Author.findById(req.body.author);
         if (!foundAuthor) {
-          return next(new ErrorResponse(`Author ${req.body.author} not found`, 404));
+          return res.status(404).json({ errors: `Author ${req.body.author} not found` });
         }
       }
       const book = new Book({
         name: req.body.name,
         category: req.body.category,
         author: req.body.author,
-        avgRating: req.body.avgRating,
         reviews: req.body.reviews,
       });
 
       if (!req.files) {
-        return next(new ErrorResponse('Please upload a file', 404));
+        return res.status(404).json({ errors: 'Please upload a file' });
       }
 
       const file = req.files.image;
 
       if (!file.mimetype.startsWith('image')) {
-        return next(new ErrorResponse('Please upload an image file', 404));
+        return res.status(404).json({ errors: 'Please upload an image file' });
       }
 
       if (file.size > process.env.MAX_FILE_UPLOAD) {
-        return next(
-          new ErrorResponse(
-            `Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`,
-            404,
-          ),
-        );
+        return res.status(404).json({
+          message: `Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`,
+        });
       }
 
       file.name = `photo_profile_${Date.now()}${path.parse(file.name).ext}`;
 
       file.mv(
         `${process.env.FILE_UPLOAD_PATH}/books/${file.name}`,
-        // eslint-disable-next-line consistent-return
         async (err) => {
           if (err) {
             console.error(err);
-            return next(new ErrorResponse('Error while file upload', 500));
+            return res.status(500).json({ errors: 'Error while file upload' });
           }
 
           book.image = file.name;
@@ -128,15 +123,15 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
     .run(req);
   await body('category').exists().withMessage('Category is required').run(req);
   await body('author').exists().withMessage('Author is required').run(req);
-  await body('avgRating').isNumeric().withMessage('Average rating must be a number').run(req);
 
   // Check for validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return next(new ErrorResponse(errors.array()[0].msg, 400));
+    const errorArray = errors.array().map((error) => error.msg);
+    return res.status(400).json({ errors: errorArray });
   }
   if (!book) {
-    return next(new ErrorResponse('Book not found', 404));
+    return res.status(404).json({ errors: 'Book not found' });
   }
 
   const { category, author } = req.body;
@@ -144,14 +139,14 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
   if (category) {
     const foundCategory = await Category.findById(category);
     if (!foundCategory) {
-      return next(new ErrorResponse(`Category ${category} not found`, 404));
+      return res.status(404).json({ errors: `Category ${category} not found` });
     }
   }
 
   if (author) {
     const foundAuthor = await Author.findById(author);
     if (!foundAuthor) {
-      return next(new ErrorResponse(`Author ${author} not found`, 404));
+      return res.status(404).json({ errors: `Author ${author} not found` });
     }
   }
 
@@ -159,16 +154,11 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
     const { file } = req.files.file;
 
     if (!file.mimetype.startsWith('image')) {
-      return next(new ErrorResponse('Please upload an image file', 400));
+      return res.status(400).json({ errors: 'Please upload an image file' });
     }
 
     if (file.size > process.env.MAX_FILE_UPLOAD) {
-      return next(
-        new ErrorResponse(
-          `Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,
-          400,
-        ),
-      );
+      return res.status(400).json({ errors: `Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}` });
     }
 
     // eslint-disable-next-line no-underscore-dangle
@@ -180,7 +170,7 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
       async (err) => {
         if (err) {
           console.error(err);
-          return next(new ErrorResponse('Error while file upload', 500));
+          return res.status(500).json({ errors: 'Error while file upload' });
         }
       },
     );
