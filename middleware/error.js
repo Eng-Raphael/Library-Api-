@@ -1,5 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable consistent-return */
+/* eslint-disable no-console */
+
 const ErrorResponse = require('../utils/errorResponse');
 
 const errorHandler = (err, req, res, next) => {

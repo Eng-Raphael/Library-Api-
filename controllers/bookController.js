@@ -1,5 +1,11 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-plusplus */
 /* eslint-disable no-unused-vars */
 /* eslint-disable consistent-return */
+/* eslint-disable no-console */
+
 const fs = require('fs');
 const path = require('path');
 const { body, validationResult } = require('express-validator');
@@ -9,7 +15,7 @@ const ErrorResponse = require('../utils/errorResponse');
 const Book = require('../models/Book');
 const Category = require('../models/Category');
 const Author = require('../models/Author');
-
+const User = require('../models/User');
 // @desc Get all books
 // @route GET /api/books
 // @access Public
@@ -211,6 +217,9 @@ exports.deleteBook = async (req, res, next) => {
 
     await book.deleteOne();
 
+    // remove book from user's books array
+    await removeBookFromUserBooks(book._id);
+
     res.status(200).json({
       success: true,
       data: {},
@@ -219,3 +228,22 @@ exports.deleteBook = async (req, res, next) => {
     next(err);
   }
 };
+
+async function removeBookFromUserBooks(bookId) {
+  try {
+    const users = await User.find({ 'books.bookId': bookId });
+
+    if (users && users.length > 0) {
+      for (let i = 0; i < users.length; i++) {
+        const user = users[i];
+        const index = user.books.findIndex((book) => book.bookId.toString() === bookId.toString());
+        if (index !== -1) {
+          user.books.splice(index, 1);
+          await user.save();
+        }
+      }
+    }
+  } catch (err) {
+    console.error(`Error removing book from user's books array: ${err.message}`);
+  }
+}
