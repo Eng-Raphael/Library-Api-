@@ -341,7 +341,10 @@ const sendTokenResponse = (user, statuscode, res) => {
       success: true,
       token,
       userId: user._id,
-      userRole: user.role,
-      userName: user.username,
+      role: user.role,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      image: user.image,
     });
 };
