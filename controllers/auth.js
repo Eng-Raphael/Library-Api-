@@ -169,7 +169,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       .custom(async (value, { req }) => {
         const user = await User.findOne({ username: value });
         if (user) {
-          return res.status(400).json({ errors: ['username already exsists'] });
+          throw new Error('Username already exists');
         }
         return true;
       })
