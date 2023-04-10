@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable consistent-return */
 const { body, validationResult } = require('express-validator');
@@ -123,3 +124,38 @@ exports.deleteCategory = async (req, res, next) => {
     next(err);
   }
 };
+
+// @desc GET popular category
+// @route Get /api/categories/popular
+// @access Private (Admin)
+exports.getPopularCategory = asyncHandler(async (req, res, next) => {
+  try {
+    const categoriesWithHighestAvgRating = await Book.aggregate([
+      {
+        $group: {
+          _id: '$category',
+          avgRating: { $avg: '$avgRating' },
+        },
+      },
+      {
+        $sort: {
+          avgRating: -1,
+        },
+      },
+      {
+        $limit: 3,
+      },
+    ]);
+
+    if (categoriesWithHighestAvgRating.length === 0) {
+      res.status(404).json({ errors: ['no category found'] });
+    }
+
+    const categoryIds = categoriesWithHighestAvgRating.map((category) => category._id);
+    const Popularcategories = await Category.find({ _id: { $in: categoryIds } });
+
+    res.status(200).json({ Popularcategories });
+  } catch (err) {
+    next(err);
+  }
+});

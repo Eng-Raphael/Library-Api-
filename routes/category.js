@@ -8,6 +8,7 @@ const {
   updateCategory,
   deleteCategory,
   getAllBooksOfCategory,
+  getPopularCategory,
 } = require('../controllers/category');
 
 const { protect, authorize } = require('../middleware/auth');
@@ -17,7 +18,7 @@ const Category = require('../models/Category');
 
 router.route('/').get(advancedResults(Category), getCategories);
 router.get('/', getCategories);
-
+router.get('/popular', protect, authorize('admin'), getPopularCategory);
 router.get('/:categoryId', getCategory);
 router.get('/:id/books', getAllBooksOfCategory);
 router.post('/', protect, authorize('admin'), createCategory);
