@@ -283,3 +283,141 @@ exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
+
+// @desc GET popular authors with thier popular books 3 for each
+// @route GET /api/authors/books/popular
+// @access Private (Admin)
+exports.getPopularAuthorsAndThierPoularBooks = asyncHandler(async (req, res, next) => {
+  try {
+    // Find the top 3 authors with the highest average rating
+    const popularAuthors = await Author.aggregate([
+      {
+        $lookup: {
+          from: 'books',
+          localField: '_id',
+          foreignField: 'author',
+          as: 'books',
+        },
+      },
+      {
+        $unwind: '$books',
+      },
+      {
+        $group: {
+          _id: '$_id',
+          firstName: { $first: '$firstName' },
+          lastName: { $first: '$lastName' },
+          avgRating: { $avg: '$books.avgRating' },
+        },
+      },
+      {
+        $sort: {
+          avgRating: -1,
+        },
+      },
+      {
+        $limit: 3,
+      },
+    ]);
+
+    // Get the top 3 books for each of the top 3 authors
+    const popularBooks = await Book.aggregate([
+      {
+        $match: {
+          author: {
+            $in: popularAuthors.map((author) => author._id),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$author',
+          books: {
+            $push: {
+              _id: '$_id',
+              name: '$name',
+              category: '$category',
+              avgRating: '$avgRating',
+            },
+          },
+          avgRating: {
+            $avg: '$avgRating',
+          },
+        },
+      },
+      {
+        $sort: {
+          avgRating: -1,
+        },
+      },
+      {
+        $limit: 3,
+      },
+      {
+        $facet: {
+          authors: [
+            {
+              $lookup: {
+                from: 'authors',
+                localField: '_id',
+                foreignField: '_id',
+                as: 'author',
+              },
+            },
+            {
+              $project: {
+                author: {
+                  $arrayElemAt: ['$author', 0],
+                },
+                books: {
+                  $slice: ['$books', 3],
+                },
+                avgRating: 1,
+              },
+            },
+          ],
+          books: [
+            {
+              $unwind: '$books',
+            },
+            {
+              $sort: {
+                'books.avgRating': -1,
+              },
+            },
+            {
+              $group: {
+                _id: '$_id',
+                name: {
+                  $first: '$books.name',
+                },
+                category: {
+                  $first: '$books.category',
+                },
+                author: {
+                  $first: '$author',
+                },
+                avgRating: {
+                  $first: '$books.avgRating',
+                },
+              },
+            },
+            {
+              $limit: 9,
+            },
+          ],
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        popularAuthors: popularBooks[0].authors,
+        popularBooks: popularBooks[0].books,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
