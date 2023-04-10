@@ -163,6 +163,9 @@ exports.register = asyncHandler(async (req, res, next) => {
       .isLength({ min: 8 })
       .withMessage('Password should be at least 8 characters long')
       .run(req),
+    body('username')
+      .notEmpty().withMessage('Please add your user name')
+      .run(req),
   ]);
 
   // Check for validation errors
@@ -199,6 +202,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   const user = await User.create({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
+    username: req.body.username,
     email: req.body.email,
     password: req.body.password,
     image: fileName,
@@ -227,19 +231,18 @@ exports.register = asyncHandler(async (req, res, next) => {
 //   sendTokenResponse(user, 200, res);
 // });
 exports.login = asyncHandler(async (req, res, next) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    res.status(400).json({ errors: ['Please provide an email and password'] });
+  const { username, password } = req.body;
+  if (!username || !password) {
+    res.status(400).json({ errors: ['Please provide an username and password'] });
+  }
+  // Check if username is valid
+  const isValidUsername = /^[a-zA-Z0-9]+$/.test(username);
+  if (!isValidUsername) {
+    res.status(400).json({ errors: ['Please provide a valid username'] });
   }
 
-  // Check if email is valid
-  const isValidEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
-  if (!isValidEmail) {
-    res.status(400).json({ errors: ['Please provide a valid email'] });
-  }
-
-  // Find user by email
-  const user = await User.findOne({ email }).select('+password');
+  /// Find user by username
+  const user = await User.findOne({ username }).select('+password');
 
   if (!user) {
     res.status(401).json({ errors: ['Invalid credentials'] });

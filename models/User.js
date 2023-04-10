@@ -69,7 +69,6 @@ const UserSchema = new mongoose.Schema({
 /* eslint-disable prefer-destructuring */
 
 UserSchema.pre('save', async function (next) {
-  this.username = `${this.firstName}_${this.lastName}`.toLowerCase();
   if (!this.isModified('password')) {
     next();
   }
