@@ -8,6 +8,7 @@ const {
   createAuthor,
   updateAuthor,
   deleteAuthor,
+  getPopularAuthorAndBooks,
 } = require('../controllers/author');
 
 const advancedResults = require('../middleware/advancedResults');
@@ -18,7 +19,7 @@ router
   .route('/')
   .get(advancedResults(Author), protect, getAuthors);
 router.get('/', protect, getAuthors);
-
+router.get('/popular/books/popular', protect, authorize('admin'), getPopularAuthorAndBooks);
 router.get('/:authorId', protect, authorize('admin'), getAuthor);
 router.get('/:id/books', protect, authorize('admin'), getAuthors);
 router.post('/', protect, authorize('admin'), createAuthor);

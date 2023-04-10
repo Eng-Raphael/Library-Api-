@@ -215,9 +215,71 @@ exports.deleteAuthor = asyncHandler(async (req, res, next) => {
   }
 });
 
-// @desc get author books
-// @route GET /api/authors/:authorId/books
-// @access Private
-// exports.getBooksByAuthor = asyncHandler(async (req, res, next) => {
+// @desc GET popular authors
+// @route GET /api/authors/popular/books/popular
+// @access Private (Admin)
+exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
+  try {
+    // Find the author with the highest average rating
+    const popularAuthors = await Author.aggregate([
+      {
+        $lookup: {
+          from: 'books',
+          localField: '_id',
+          foreignField: 'author',
+          as: 'books',
+        },
+      },
+      {
+        $unwind: '$books',
+      },
+      {
+        $group: {
+          _id: '$_id',
+          firstName: { $first: '$firstName' },
+          lastName: { $first: '$lastName' },
+          avgRating: { $avg: '$books.avgRating' },
+        },
+      },
+      {
+        $sort: {
+          avgRating: -1,
+        },
+      },
+      {
+        $limit: 3,
+      },
+    ]);
 
-// });
+    // Find the books with the highest average rating
+    const popularBooks = await Book.aggregate([
+      {
+        $group: {
+          _id: '$_id',
+          name: { $first: '$name' },
+          category: { $first: '$category' },
+          author: { $first: '$author' },
+          avgRating: { $avg: '$avgRating' },
+        },
+      },
+      {
+        $sort: {
+          avgRating: -1,
+        },
+      },
+      {
+        $limit: 10,
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        popularAuthor: popularAuthors.slice(0, 3),
+        popularBooks,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
