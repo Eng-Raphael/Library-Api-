@@ -74,8 +74,19 @@ const corsOptions = {
   origin: 'http://localhost:4200',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 };
-app.use(cors(corsOptions));
+app.use(cors());
 
+// app.use(cors({
+//   origin: 'http://localhost:4200'
+// }));
+
+// app.use((req, res, next) => {
+//   res.setHeader('Access-Control-Allow-Origin', '*'); // all origins (you can specify)
+//   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, Patch, PUT, DELETE'); // allow some methods (you can specify)
+//   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//   res.setCross-Origin-Resource-Policy
+//   next();
+// });
 // set static folder
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
