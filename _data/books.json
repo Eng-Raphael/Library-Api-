@@ -1,148 +1,133 @@
 [{
   "_id": {
-    "$oid": "642eb80f9f89bb8d6bfb2121"
+    "$oid": "6431d4e04418620d65f7703f"
   },
   "name": "bookOne",
   "category": {
-    "$oid": "642eb40ae167574fe27aebf7"
+    "$oid": "6431d4814418620d65f77029"
   },
   "author": {
-    "$oid": "642eb3eae167574fe27aebee"
+    "$oid": "6431d4b44418620d65f77035"
   },
-  "image": "photo_profile_1680783375787.jpg",
+  "image": "photo_profile_1680987360157.jpg",
   "avgRating": 0,
+  "totalRatings": 0,
   "reviews": [],
   "createdAt": {
-    "$date": "2023-04-06T12:16:15.793Z"
+    "$date": "2023-04-08T20:56:00.159Z"
   },
   "updatedAt": {
-    "$date": "2023-04-06T12:16:15.793Z"
+    "$date": "2023-04-08T20:56:00.159Z"
   },
   "__v": 0
 },{
   "_id": {
-    "$oid": "642eb9039f89bb8d6bfb212b"
+    "$oid": "6431d4e64418620d65f77044"
   },
   "name": "bookTwo",
   "category": {
-    "$oid": "642eb40ae167574fe27aebf7"
+    "$oid": "6431d4814418620d65f77029"
   },
   "author": {
-    "$oid": "642eb3eae167574fe27aebee"
+    "$oid": "6431d4b44418620d65f77035"
   },
-  "image": "photo_profile_1680783619839.jpg",
+  "image": "photo_profile_1680987366418.jpg",
   "avgRating": 0,
+  "totalRatings": 0,
   "reviews": [],
   "createdAt": {
-    "$date": "2023-04-06T12:20:19.841Z"
+    "$date": "2023-04-08T20:56:06.420Z"
   },
   "updatedAt": {
-    "$date": "2023-04-06T12:20:19.841Z"
+    "$date": "2023-04-08T20:56:06.420Z"
   },
   "__v": 0
 },{
   "_id": {
-    "$oid": "642eb9509f89bb8d6bfb2130"
+    "$oid": "6431d4fa4418620d65f77049"
   },
   "name": "bookThree",
   "category": {
-    "$oid": "642e993758fe44c800426783"
+    "$oid": "6431d4734418620d65f77026"
   },
   "author": {
-    "$oid": "642ea4532cb45f44a808fae5"
+    "$oid": "6431d4ac4418620d65f77032"
   },
-  "image": "photo_profile_1680783696690.jpg",
-  "avgRating": 0,
+  "image": "photo_profile_1680987386549.jpg",
+  "avgRating": 85375.16666666667,
+  "totalRatings": 6,
   "reviews": [],
   "createdAt": {
-    "$date": "2023-04-06T12:21:36.691Z"
+    "$date": "2023-04-08T20:56:26.550Z"
   },
   "updatedAt": {
-    "$date": "2023-04-06T12:21:36.691Z"
+    "$date": "2023-04-09T08:13:20.821Z"
   },
   "__v": 0
 },{
   "_id": {
-    "$oid": "642eb9609f89bb8d6bfb2135"
+    "$oid": "6431d51a4418620d65f7704e"
   },
   "name": "bookFour",
   "category": {
-    "$oid": "642e992958fe44c800426780"
+    "$oid": "6431d46b4418620d65f77023"
   },
   "author": {
-    "$oid": "642ea4532cb45f44a808fae5"
+    "$oid": "6431d4a54418620d65f7702f"
   },
-  "image": "photo_profile_1680783712236.jpg",
-  "avgRating": 0,
+  "image": "photo_profile_1680987418621.jpg",
+  "avgRating": 4391891.875,
+  "totalRatings": 8,
   "reviews": [],
   "createdAt": {
-    "$date": "2023-04-06T12:21:52.237Z"
+    "$date": "2023-04-08T20:56:58.622Z"
   },
   "updatedAt": {
-    "$date": "2023-04-06T12:21:52.237Z"
+    "$date": "2023-04-08T21:39:54.818Z"
   },
   "__v": 0
 },{
   "_id": {
-    "$oid": "642ebab69f89bb8d6bfb213a"
+    "$oid": "6431d5214418620d65f77053"
   },
   "name": "bookFive",
   "category": {
-    "$oid": "642e992958fe44c800426780"
+    "$oid": "6431d46b4418620d65f77023"
   },
   "author": {
-    "$oid": "642ea4532cb45f44a808fae5"
+    "$oid": "6431d4a54418620d65f7702f"
   },
-  "image": "photo_profile_1680784054362.jpg",
-  "avgRating": 0,
+  "image": "photo_profile_1680987425004.jpg",
+  "avgRating": 4,
+  "totalRatings": 1,
   "reviews": [],
   "createdAt": {
-    "$date": "2023-04-06T12:27:34.364Z"
+    "$date": "2023-04-08T20:57:05.007Z"
   },
   "updatedAt": {
-    "$date": "2023-04-06T12:27:34.364Z"
+    "$date": "2023-04-08T21:34:29.749Z"
   },
   "__v": 0
 },{
   "_id": {
-    "$oid": "642ebae79f89bb8d6bfb213f"
+    "$oid": "64329cc873a627497155cc53"
   },
   "name": "bookSix",
   "category": {
-    "$oid": "642e992958fe44c800426780"
+    "$oid": "6431d46b4418620d65f77023"
   },
   "author": {
-    "$oid": "642ea4472cb45f44a808fadf"
+    "$oid": "6431d4a54418620d65f7702f"
   },
-  "image": "photo_profile_1680784103556.jpg",
+  "image": "photo_profile_1681038536462.jpg",
   "avgRating": 0,
+  "totalRatings": 0,
   "reviews": [],
   "createdAt": {
-    "$date": "2023-04-06T12:28:23.558Z"
+    "$date": "2023-04-09T11:08:56.475Z"
   },
   "updatedAt": {
-    "$date": "2023-04-06T12:28:23.558Z"
-  },
-  "__v": 0
-},{
-  "_id": {
-    "$oid": "642ebf60054171968eda322b"
-  },
-  "name": "bookSeven",
-  "category": {
-    "$oid": "642eb3f7e167574fe27aebf1"
-  },
-  "author": {
-    "$oid": "642ea44d2cb45f44a808fae2"
-  },
-  "image": "photo_profile_1680785248828.jpg",
-  "avgRating": 0,
-  "reviews": [],
-  "createdAt": {
-    "$date": "2023-04-06T12:47:28.833Z"
-  },
-  "updatedAt": {
-    "$date": "2023-04-06T12:47:28.833Z"
+    "$date": "2023-04-09T11:08:56.475Z"
   },
   "__v": 0
 }]
