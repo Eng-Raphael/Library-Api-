@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable max-len */
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-underscore-dangle */
@@ -165,6 +166,13 @@ exports.register = asyncHandler(async (req, res, next) => {
       .run(req),
     body('username')
       .notEmpty().withMessage('Please add your user name')
+      .custom(async (value, { req }) => {
+        const user = await User.findOne({ username: value });
+        if (user) {
+          return res.status(400).json({ errors: ['username already exsists'] });
+        }
+        return true;
+      })
       .run(req),
   ]);
 
