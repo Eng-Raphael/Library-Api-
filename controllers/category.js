@@ -79,7 +79,7 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
   let category = await Category.findById(req.params.categoryId);
 
   if (!category) {
-    return next(new ErrorResponse(`Category with id ${req.params.categoryId} not found`, 404));
+    return res.status(404).json({ errors: [`Category with id ${req.params.categoryId} not found`] });
   }
 
   const { name } = req.body;
@@ -104,9 +104,7 @@ exports.deleteCategory = async (req, res, next) => {
     const category = await Category.findById(req.params.categoryId);
 
     if (!category) {
-      return next(
-        new ErrorResponse(`Category not found with id of ${req.params.categoryId}`, 404),
-      );
+      return res.status(404).json({ errors: [`Category not found with id of ${req.params.categoryId}`] });
     }
 
     // Delete all books related to the category
