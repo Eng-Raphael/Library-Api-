@@ -35,9 +35,7 @@ exports.getAllBooksOfCategory = asyncHandler(async (req, res) => {
 exports.getCategory = asyncHandler(async (req, res, next) => {
   const category = await Category.findById(req.params.categoryId);
   if (!category) {
-    return next(
-      new ErrorResponse(`Category not found with id: ${req.params.categoryId}`, 404),
-    );
+    return res.status(404).json({ errors: [`Category not found with id: ${req.params.categoryId}`] });
   }
   return res.status(200).json({ success: true, data: category });
 });
