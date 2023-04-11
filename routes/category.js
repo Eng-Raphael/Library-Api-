@@ -22,9 +22,7 @@ router.get('/popular', protect, authorize('admin'), getPopularCategory);
 router.get('/:categoryId', getCategory);
 router.get('/:id/books', getAllBooksOfCategory);
 router.post('/', protect, authorize('admin'), createCategory);
-
 router.put('/:categoryId', protect, authorize('admin'), updateCategory);
-
 router.delete('/:categoryId', protect, authorize('admin'), deleteCategory);
 
 module.exports = router;
