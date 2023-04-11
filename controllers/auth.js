@@ -157,10 +157,35 @@ exports.getMe = asyncHandler(async (req, res) => {
 // @route     PUT /api/v1/auth/updatedetails
 // @access    Private
 exports.updateDetails = asyncHandler(async (req, res) => {
+  const { firstName, lastName, email } = req.body;
+
+  await body('firstName')
+    .notEmpty().withMessage('Please add your first name')
+    .isLength({ min: 2, max: 20 })
+    .withMessage('First name should be between 2 to 20 alphabets')
+    .run(req);
+
+  await body('lastName')
+    .notEmpty().withMessage('Please add your last name')
+    .isLength({ min: 2, max: 20 })
+    .withMessage('Last name should be between 2 to 20 alphabets')
+    .run(req);
+
+  await body('email')
+    .notEmpty().withMessage('Please add an email')
+    .isEmail()
+    .withMessage('Please add a valid email')
+    .run(req);
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const fieldsToUpdate = {
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
+    firstName,
+    lastName,
+    email,
   };
   const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
     new: true,
