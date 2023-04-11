@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable consistent-return */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
@@ -130,46 +131,52 @@ exports.createAuthor = [
 // @access Private (Admin)
 // eslint-disable-next-line consistent-return
 exports.updateAuthor = asyncHandler(async (req, res, next) => {
-  let author = await Author.findById(req.params.authorId);
-
-  if (!author) {
-    res.status(404).json({ errors: [`Author not found with id: ${req.params.authorId}`] });
-  }
+  await Promise.all([
+    body('firstName')
+      .notEmpty().withMessage('Please add your first name')
+      .isLength({ min: 2, max: 20 })
+      .withMessage('First name should be between 2 to 20 alphabets')
+      .run(req),
+    body('lastName')
+      .notEmpty().withMessage('Please add your last name')
+      .isLength({ min: 2, max: 20 })
+      .withMessage('Last name should be between 2 to 20 alphabets')
+      .run(req),
+  ]);
 
   if (req.files && req.files.file) {
-    const { file } = req.files.file;
+    await body('file').custom(async (value, { req }) => {
+      const { file } = req.files.file;
 
-    if (!file.mimetype.startsWith('image')) {
-      res.status(400).json({ errors: ['Please upload an image file'] });
-    }
+      if (file.size > process.env.MAX_FILE_UPLOAD) {
+        throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
+      }
 
-    if (file.size > process.env.MAX_FILE_UPLOAD) {
-      res.status(400).json({ errors: [`Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`] });
-    }
+      req.body.image = `photo_author_${req.body.firstName + req.body.lastName}${path.parse(file.name).ext}`;
+      await file.mv(
+        `${process.env.FILE_UPLOAD_PATH}/authors/${req.body.image}`,
+      );
 
-    // eslint-disable-next-line no-underscore-dangle
-    file.name = `photo_author_${author.firstName + author.lastName}${path.parse(file.name).ext}`;
-
-    file.mv(
-      `${process.env.FILE_UPLOAD_PATH}/authors/${file.name}`,
-      // eslint-disable-next-line consistent-return
-      async (err) => {
-        if (err) {
-          console.error(err);
-          res.status(500).json({ errors: ['Error while file upload'] });
-        }
-      },
-    );
-
-    req.body.image = file.name;
+      return true;
+    }).run(req);
   }
 
-  author = await Author.findByIdAndUpdate(req.params.authorId, req.body, {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const author = await Author.findByIdAndUpdate(req.params.authorId, req.body, {
     new: true,
     runValidators: true,
   });
 
-  res.status(200).json({ success: true, data: author });
+  if (!author) {
+    return res.status(404).json({ errors: [`Author not found with id: ${req.params.authorId}`] });
+  }
+
+  return res.status(200).json({ success: true, data: author });
 });
 
 // @desc Delete an author
