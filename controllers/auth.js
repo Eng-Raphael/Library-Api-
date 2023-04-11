@@ -178,6 +178,13 @@ exports.register = asyncHandler(async (req, res, next) => {
 
   // Check for validation errors
   const errors = validationResult(req);
+
+  errors.array().forEach((error) => {
+    if (error.param === 'username') {
+      validationResult(req).addError(error);
+    }
+  });
+
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
