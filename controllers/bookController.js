@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-await-in-loop */
@@ -45,6 +46,26 @@ exports.createBook = [
     .withMessage('Book name must be between 3 and 50 characters'),
   body('category').exists().withMessage('Category is required'),
   body('author').exists().withMessage('Author is required'),
+  body('image')
+    .custom((value, { req }) => {
+      if (!req.files || !req.files.image) {
+        throw new Error('Please upload a file');
+      }
+
+      const file = req.files.image;
+
+      if (!file.mimetype.startsWith('image')) {
+        throw new Error('Please upload an image file');
+      }
+
+      if (file.size > process.env.MAX_FILE_UPLOAD) {
+        throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
+      }
+
+      req.body.image = `photo_profile_${req.body.name}${path.parse(file.name).ext}`;
+
+      return true;
+    }),
 
   async (req, res, next) => {
     try {
@@ -66,50 +87,22 @@ exports.createBook = [
           return res.status(404).json({ errors: `Author ${req.body.author} not found` });
         }
       }
+
       const book = new Book({
         name: req.body.name,
         category: req.body.category,
         author: req.body.author,
         reviews: req.body.reviews,
+        image: req.body.image,
       });
 
-      if (!req.files) {
-        return res.status(404).json({ errors: 'Please upload a file' });
-      }
-
-      const file = req.files.image;
-
-      if (!file.mimetype.startsWith('image')) {
-        return res.status(404).json({ errors: 'Please upload an image file' });
-      }
-
-      if (file.size > process.env.MAX_FILE_UPLOAD) {
-        return res.status(404).json({
-          message: `Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`,
-        });
-      }
-
-      file.name = `photo_profile_${req.body.name}${path.parse(file.name).ext}`;
-
-      file.mv(
-        `${process.env.FILE_UPLOAD_PATH}/books/${file.name}`,
-        async (err) => {
-          if (err) {
-            console.error(err);
-            return res.status(500).json({ errors: 'Error while file upload' });
-          }
-
-          book.image = file.name;
-
-          await book.save();
-          // // return the image URL in the response
-          // const imageUrl = `${req.protocol}://${req.get('host')}/uploads/books/${file.name}`;
-          res.status(201).json({
-            success: true,
-            data: book,
-          });
-        },
-      );
+      const savedBook = await book.save();
+      // return the image URL in the response
+      // const imageUrl = `${req.protocol}://${req.get('host')}/uploads/books/${req.body.image}`;
+      res.status(201).json({
+        success: true,
+        data: savedBook,
+      });
     } catch (err) {
       next(err);
     }
@@ -131,6 +124,22 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
   await body('category').exists().withMessage('Category is required').run(req);
   await body('author').exists().withMessage('Author is required').run(req);
 
+  // Validate file
+  if (req.files && req.files.file) {
+    await body('file')
+      .custom((value, { req }) => {
+        const { file } = req.files.file;
+        if (!file.mimetype.startsWith('image')) {
+          throw new Error('Please upload an image file');
+        }
+        if (file.size > process.env.MAX_FILE_UPLOAD) {
+          throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
+        }
+        return true;
+      })
+      .run(req);
+  }
+
   // Check for validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -138,7 +147,7 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ errors: errorArray });
   }
   if (!book) {
-    return res.status(404).json({ errors: 'Book not found' });
+    return res.status(404).json({ errors: ['Book not found'] });
   }
 
   const { category, author } = req.body;
@@ -146,27 +155,19 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
   if (category) {
     const foundCategory = await Category.findById(category);
     if (!foundCategory) {
-      return res.status(404).json({ errors: `Category ${category} not found` });
+      return res.status(404).json({ errors: [`Category ${category} not found`] });
     }
   }
 
   if (author) {
     const foundAuthor = await Author.findById(author);
     if (!foundAuthor) {
-      return res.status(404).json({ errors: `Author ${author} not found` });
+      return res.status(404).json({ errors: [`Author ${author} not found`] });
     }
   }
 
   if (req.files && req.files.file) {
     const { file } = req.files.file;
-
-    if (!file.mimetype.startsWith('image')) {
-      return res.status(400).json({ errors: 'Please upload an image file' });
-    }
-
-    if (file.size > process.env.MAX_FILE_UPLOAD) {
-      return res.status(400).json({ errors: `Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}` });
-    }
 
     // eslint-disable-next-line no-underscore-dangle
     file.name = `photo_book_${req.body.name}${path.parse(file.name).ext}`;
@@ -177,7 +178,7 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
       async (err) => {
         if (err) {
           console.error(err);
-          return res.status(500).json({ errors: 'Error while file upload' });
+          return res.status(500).json({ errors: ['Error while file upload'] });
         }
       },
     );
