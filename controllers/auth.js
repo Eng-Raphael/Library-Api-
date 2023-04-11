@@ -12,136 +12,10 @@ const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
 
-// @desc      Register user
-// @route     POST /api/v1/auth/register
-// @access    Public
-
-// exports.register = asyncHandler(async (req, res, next) => {
-//   const {
-//     firstName, lastName, email, password,
-//   } = req.body;
-
-//   if (!req.files) {
-//     return next(new ErrorResponse('Please upload a file', 404));
-//   }
-
-//   const { file } = req.files;
-
-//   // Make sure image is a photo
-//   if (!file.mimetype.startsWith('image')) {
-//     return next(new ErrorResponse('Please upload an image file', 404));
-//   }
-
-//   // check file size
-//   if (file.size > process.env.MAX_FILE_UPLOAD) {
-//     return next(new ErrorResponse(`Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`, 404));
-//   }
-
-//   // Create custom file name
-//   file.name = `photo_${firstName + lastName}${path.parse(file.name).ext}`;
-
-//   // move file to folder
-//   file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${file.name}`, async (err) => {
-//     if (err) {
-//       console.error(err);
-//       return next(new ErrorResponse('Error while file upload', 500));
-//     }
-//   });
-
-//   // create User
-//   const user = await User.create({
-//     firstName,
-//     lastName,
-//     email,
-//     password,
-//     image: file.name,
-//   });
-
-//   sendTokenResponse(user, 200, res);
-// });
-// exports.register = asyncHandler(async (req, res, next) => {
-//   const {
-//     firstName,
-//     lastName,
-//     username,
-//     email,
-//     password,
-//     role,
-//   } = req.body;
-
-//   // Validate inputs
-//   const errors = {};
-
-//   // Validate firstName
-//   if (!firstName) {
-//     errors.firstName = 'Please add your first name';
-//   } else if (!/^[A-Za-z]{2,20}$/.test(firstName)) {
-//     errors.firstName = 'First name should be between 2 to 20 alphabets';
-//   }
-
-//   // Validate lastName
-//   if (!lastName) {
-//     errors.lastName = 'Please add your last name';
-//   } else if (!/^[A-Za-z]{2,20}$/.test(lastName)) {
-//     errors.lastName = 'Last name should be between 2 to 20 alphabets';
-//   }
-
-//   // Validate email
-//   if (!email) {
-//     errors.email = 'Please add an email';
-//   } else if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-//     errors.email = 'Please add a valid email';
-//   }
-
-//   // Validate password
-//   if (!password) {
-//     errors.password = 'Please add a password';
-//   } else if (password.length < 8) {
-//     errors.password = 'Password should be at least 8 characters long';
-//   }
-
-//   // Check for validation errors
-//   if (Object.keys(errors).length > 0) {
-//     return res.status(400).json({ errors });
-//   }
-
-//   // Check for uploaded file
-//   if (!req.files || !req.files.file) {
-//     return next(new ErrorResponse('Please upload a file', 400));
-//   }
-
-//   const { file } = req.files;
-
-//   // Check if the file is an image
-//   if (!file.mimetype.startsWith('image')) {
-//     return next(new ErrorResponse('Please upload an image file', 400));
-//   }
-
-//   // Check file size
-//   if (file.size > process.env.MAX_FILE_UPLOAD) {
-//     return next(new ErrorResponse(`Please upload an image file less than ${process.env.MAX_FILE_UPLOAD}`, 400));
-//   }
-
-//   // Create custom file name
-//   const fileExt = path.extname(file.name);
-//   const fileName = `photo_${firstName}_${lastName}${fileExt}`;
-
-//   // Move file to upload directory
-//   await file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${fileName}`);
-
-//   // Create user
-//   const user = await User.create({
-//     firstName,
-//     lastName,
-//     email,
-//     password,
-//     image: fileName,
-//   });
-
-//   sendTokenResponse(user, 200, res);
-// });
 exports.register = asyncHandler(async (req, res, next) => {
   const { firstName, lastName } = req.body;
+  const { file } = req.files;
+
   // Run validations
   await Promise.all([
     body('firstName')
@@ -214,8 +88,6 @@ exports.register = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { file } = req.files;
-
   // Create custom file name
   const fileExt = path.extname(file.name);
   const fileName = `photo_user_${firstName}_${lastName}${fileExt}`;
@@ -235,48 +107,37 @@ exports.register = asyncHandler(async (req, res, next) => {
 
   sendTokenResponse(user, 200, res);
 });
-// @desc      Login user
-// @route     POST /api/v1/auth/login
-// @access    Public
-// exports.login = asyncHandler(async (req, res, next) => {
-//   const { email, password } = req.body;
-//   if (!email || !password) {
-//     return next(new ErrorResponse('Please provide an email and password', 400));
-//   }
-//   const user = await User.findOne({ email }).select('+password');
-//   if (!user) {
-//     return next(new ErrorResponse('Invalid credentials', 401));
-//   }
 
-//   const isMatch = await user.matchPassword(password);
-
-//   if (!isMatch) {
-//     return next(new ErrorResponse('Invalid credentials', 401));
-//   }
-//   sendTokenResponse(user, 200, res);
-// });
 exports.login = asyncHandler(async (req, res, next) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    res.status(400).json({ errors: ['Please provide an username and password'] });
-  }
-  // Check if username is valid
-  const isValidUsername = /^[a-zA-Z0-9@_$%^&*!]+$/.test(username);
-  if (!isValidUsername) {
-    res.status(400).json({ errors: ['Please provide a valid username'] });
+  await Promise.all([
+    body('username')
+      .notEmpty().withMessage('Please provide an username')
+      .matches(/^[a-zA-Z0-9@_$%^&*!]+$/, 'i')
+      .withMessage('Please provide a valid username')
+      .run(req),
+    body('password')
+      .notEmpty().withMessage('Please provide a password')
+      .run(req),
+  ]);
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
 
-  /// Find user by username
+  const { username, password } = req.body;
+
+  // Find user by username
   const user = await User.findOne({ username }).select('+password');
 
   if (!user) {
-    res.status(401).json({ errors: ['Invalid credentials'] });
+    return res.status(401).json({ errors: ['Invalid credentials'] });
   }
 
   // Check if password is valid
   const isMatch = await user.matchPassword(password);
   if (!isMatch) {
-    res.status(401).json({ errors: ['Invalid credentials'] });
+    return res.status(401).json({ errors: ['Invalid credentials'] });
   }
 
   sendTokenResponse(user, 200, res);
