@@ -133,25 +133,18 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
   let author = await Author.findById(req.params.authorId);
 
   if (!author) {
-    return next(
-      new ErrorResponse(`Author not found with id: ${req.params.authorId}`, 404),
-    );
+    res.status(404).json({ errors: [`Author not found with id: ${req.params.authorId}`] });
   }
 
   if (req.files && req.files.file) {
     const { file } = req.files.file;
 
     if (!file.mimetype.startsWith('image')) {
-      return next(new ErrorResponse('Please upload an image file', 400));
+      res.status(400).json({ errors: ['Please upload an image file'] });
     }
 
     if (file.size > process.env.MAX_FILE_UPLOAD) {
-      return next(
-        new ErrorResponse(
-          `Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`,
-          400,
-        ),
-      );
+      res.status(400).json({ errors: [`Please upload image file lass than ${process.env.MAX_FILE_UPLOAD}`] });
     }
 
     // eslint-disable-next-line no-underscore-dangle
@@ -163,7 +156,7 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
       async (err) => {
         if (err) {
           console.error(err);
-          return next(new ErrorResponse('Error while file upload', 500));
+          res.status(500).json({ errors: ['Error while file upload'] });
         }
       },
     );
@@ -188,9 +181,7 @@ exports.deleteAuthor = asyncHandler(async (req, res, next) => {
     const author = await Author.findById(req.params.authorId);
 
     if (!author) {
-      return next(
-        new ErrorResponse(`author not found with id of ${req.params.authorId}`, 404),
-      );
+      res.status(404).json({ errors: [`author not found with id of ${req.params.authorId}`] });
     }
 
     // Delete all books related to the author
