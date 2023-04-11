@@ -30,9 +30,7 @@ exports.getBooks = asyncHandler(async (req, res) => {
 exports.getBook = asyncHandler(async (req, res, next) => {
   const book = await Book.findById(req.params.bookId);
   if (!book) {
-    return next(
-      new ErrorResponse(`Book not found with id: ${req.params.bookId}`, 404),
-    );
+    return res.status(404).json({ errors: [`Book not found with id: ${req.params.bookId}`] });
   }
   return res.status(200).json({ success: true, data: book });
 });
@@ -204,9 +202,7 @@ exports.deleteBook = async (req, res, next) => {
     const book = await Book.findById(req.params.bookId);
 
     if (!book) {
-      return next(
-        new ErrorResponse(`Book not found with id of ${req.params.bookId}`, 404),
-      );
+      return res.status(404).json({ errors: [`Book not found with id of ${req.params.bookId}`] });
     }
 
     if (book.image !== 'default.jpg') {
