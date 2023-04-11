@@ -174,6 +174,25 @@ exports.register = asyncHandler(async (req, res, next) => {
         return true;
       })
       .run(req),
+    body('file')
+      .custom((value, { req }) => {
+        if (!value) {
+          throw new Error('Please upload a file');
+        }
+        return true;
+      })
+      .custom((value, { req }) => {
+        if (!value.mimetype.startsWith('image')) {
+          throw new Error('Please upload an image file');
+        }
+        return true;
+      })
+      .custom((value, { req }) => {
+        if (value.size > process.env.MAX_FILE_UPLOAD) {
+          throw new Error(`Please upload an image file less than ${process.env.MAX_FILE_UPLOAD}`);
+        }
+        return true;
+      }),
   ]);
 
   // Check for validation errors
@@ -185,26 +204,17 @@ exports.register = asyncHandler(async (req, res, next) => {
     }
   });
 
+  errors.array().forEach((error) => {
+    if (error.param === 'file') {
+      validationResult(req).addError(error);
+    }
+  });
+
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  // Check for uploaded file
-  if (!req.files || !req.files.file) {
-    return res.status(400).json({ errors: ['Please upload a file'] });
-  }
-
   const { file } = req.files;
-
-  // Check if the file is an image
-  if (!file.mimetype.startsWith('image')) {
-    return res.status(400).json({ errors: ['Please upload an image file'] });
-  }
-
-  // Check file size
-  if (file.size > process.env.MAX_FILE_UPLOAD) {
-    return res.status(400).json({ errors: [`Please upload an image file less than ${process.env.MAX_FILE_UPLOAD}`] });
-  }
 
   // Create custom file name
   const fileExt = path.extname(file.name);
