@@ -54,9 +54,7 @@ exports.getAuthors = asyncHandler(async (req, res) => {
 exports.getAuthor = asyncHandler(async (req, res, next) => {
   const author = await Author.findById(req.params.authorId);
   if (!author) {
-    return next(
-      new ErrorResponse(`Author not found with id: ${req.params.authorId}`, 404),
-    );
+    return res.status(404).json({ errors: [`Author not found with id: ${req.params.authorId}`] });
   }
   return res.status(200).json({ success: true, data: author });
 });
@@ -106,8 +104,7 @@ exports.createAuthor = [
         `${process.env.FILE_UPLOAD_PATH}/authors/${file.name}`,
         async (err) => {
           if (err) {
-            console.error(err);
-            return next(new ErrorResponse('Error while file upload', 500));
+            return res.status(500).json({ errors: ['Error while file upload'] });
           }
 
           author.image = file.name;
@@ -188,7 +185,7 @@ exports.deleteAuthor = asyncHandler(async (req, res, next) => {
     const author = await Author.findById(req.params.authorId);
 
     if (!author) {
-      res.status(404).json({ errors: [`author not found with id of ${req.params.authorId}`] });
+      return res.status(404).json({ errors: [`author not found with id of ${req.params.authorId}`] });
     }
 
     // Delete all books related to the author
