@@ -244,7 +244,7 @@ exports.login = asyncHandler(async (req, res, next) => {
     res.status(400).json({ errors: ['Please provide an username and password'] });
   }
   // Check if username is valid
-  const isValidUsername = /^[a-zA-Z0-9]+$/.test(username);
+  const isValidUsername = /^[a-zA-Z0-9@_$%^&*!]+$/.test(username);
   if (!isValidUsername) {
     res.status(400).json({ errors: ['Please provide a valid username'] });
   }
