@@ -63,100 +63,43 @@ exports.getAuthor = asyncHandler(async (req, res, next) => {
 // @route POST /api/authors
 // @access Private (Admin)
 // Set up file storage configuration
-exports.createAuthor = [
-  body('firstName').isLength({ min: 3, max: 20 }).exists().withMessage('First name is required'),
-  body('lastName').isLength({ min: 3, max: 20 }).exists().withMessage('Last name is required'),
-  body('dob').exists().withMessage('Date of birth is required'),
-
-  async (req, res, next) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        const errorArray = errors.array().map((error) => error.msg);
-        return res.status(400).json({ errors: errorArray });
-      }
-
-      const author = new Author({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        dob: req.body.dob,
-      });
-
-      if (!req.files || !req.files.image) {
-        return res.status(400).json({ errors: ['Please upload an image file'] });
-      }
-
-      const { image } = req.files;
-
-      if (!image.mimetype.startsWith('image')) {
-        return res.status(400).json({ errors: ['Please upload an image file'] });
-      }
-
-      if (image.size > process.env.MAX_FILE_UPLOAD) {
-        return res.status(400).json({
-          errors: [`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`],
-        });
-      }
-
-      const imageExt = path.extname(image.name);
-      const imageName = `photo_author_${req.body.firstName}_${req.body.lastName}${imageExt}`;
-
-      image.mv(
-        `${process.env.FILE_UPLOAD_PATH}/authors/${imageName}`,
-        async (err) => {
-          if (err) {
-            return res.status(500).json({ errors: ['Error while file upload'] });
-          }
-
-          author.image = imageName;
-
-          await author.save();
-
-          res.status(201).json({
-            success: true,
-            data: author,
-          });
-        },
-      );
-    } catch (err) {
-      next(err);
-    }
-  },
-];
-// @desc Update an author
-// @route PUT /api/authors/:authorId
-// @access Private (Admin)
-// eslint-disable-next-line consistent-return
-exports.updateAuthor = asyncHandler(async (req, res, next) => {
+exports.createAuthor = asyncHandler(async (req, res, next) => {
+  const image = req.files ? req.files.image : null;
   await Promise.all([
     body('firstName')
-      .notEmpty().withMessage('Please add your first name')
-      .isLength({ min: 2, max: 20 })
-      .withMessage('First name should be between 2 to 20 alphabets')
+      .isLength({ min: 3, max: 20 })
+      .withMessage('First name should be between 3 to 20 characters')
+      .exists()
+      .withMessage('First name is required')
       .run(req),
     body('lastName')
-      .notEmpty().withMessage('Please add your last name')
-      .isLength({ min: 2, max: 20 })
-      .withMessage('Last name should be between 2 to 20 alphabets')
+      .isLength({ min: 3, max: 20 })
+      .withMessage('Last name should be between 3 to 20 characters')
+      .exists()
+      .withMessage('Last name is required')
       .run(req),
+    body('dob')
+      .exists().withMessage('Date of birth is required')
+      .isDate()
+      .withMessage('Invalid date of birth')
+      .toDate()
+      .run(req),
+    body('image')
+      .exists()
+      .withMessage('Please upload an image file')
+      .custom((value, { req }) => {
+        if (!value.mimetype.startsWith('image')) {
+          throw new Error('Please upload an image file');
+        }
+        return true;
+      })
+      .custom((value, { req }) => {
+        if (value.size > process.env.MAX_FILE_UPLOAD) {
+          throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
+        }
+        return true;
+      }),
   ]);
-
-  if (req.files && req.files.file) {
-    await body('file').custom(async (value, { req }) => {
-      const { file } = req.files.file;
-
-      if (file.size > process.env.MAX_FILE_UPLOAD) {
-        throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
-      }
-
-      req.body.image = `photo_author_${req.body.firstName + req.body.lastName}${path.parse(file.name).ext}`;
-      await file.mv(
-        `${process.env.FILE_UPLOAD_PATH}/authors/${req.body.image}`,
-      );
-
-      return true;
-    }).run(req);
-  }
 
   const errors = validationResult(req);
 
@@ -164,10 +107,100 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const author = await Author.findByIdAndUpdate(req.params.authorId, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const { firstName, lastName, dob } = req.body;
+  if (!image) {
+    return res.status(400).json({ errors: ['Please upload an image'] });
+  }
+  // Check if author already exists
+  const existingAuthor = await Author.findOne({ firstName, lastName });
+  if (existingAuthor) {
+    return res.status(400).json({ errors: ['Author with this name already exists'] });
+  }
+  const imageExt = path.extname(image.name);
+  const imageName = `photo_author_${firstName}_${lastName}${imageExt}`;
+
+  await image.mv(
+    `${process.env.FILE_UPLOAD_PATH}/authors/${imageName}`,
+    async (err) => {
+      if (err) {
+        return res.status(500).json({ errors: ['Error while file upload'] });
+      }
+
+      const author = new Author({
+        firstName,
+        lastName,
+        dob,
+        image: imageName,
+      });
+
+      await author.save();
+
+      res.status(201).json({
+        success: true,
+        data: author,
+      });
+    },
+  );
+});
+// @desc Update an author
+// @route PUT /api/authors/:authorId
+// @access Private (Admin)
+// eslint-disable-next-line consistent-return
+exports.updateAuthor = asyncHandler(async (req, res, next) => {
+  const image = req.files ? req.files.image : null;
+
+  await Promise.all([
+    body('firstName')
+      .isLength({ min: 2, max: 20 })
+      .withMessage('First name should be between 2 to 20 alphabets')
+      .notEmpty()
+      .withMessage('Please add your first name')
+      .run(req),
+    body('lastName')
+      .isLength({ min: 2, max: 20 })
+      .withMessage('Last name should be between 2 to 20 alphabets')
+      .notEmpty()
+      .withMessage('Please add your last name')
+      .run(req),
+    body('image')
+      .custom(async (value, { req }) => {
+        if (value && value.size > process.env.MAX_FILE_UPLOAD) {
+          throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
+        }
+        return true;
+      }),
+  ]);
+
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { firstName, lastName } = req.body;
+  let imageName = null;
+
+  if (image) {
+    const imageExt = path.extname(image.name);
+    imageName = `photo_author_${firstName}_${lastName}${imageExt}`;
+    await image.mv(
+      `${process.env.FILE_UPLOAD_PATH}/authors/${imageName}`,
+      async (err) => {
+        if (err) {
+          return res.status(500).json({ errors: ['Error while file upload'] });
+        }
+      },
+    );
+  } else {
+    const author = await Author.findById(req.params.authorId);
+    imageName = author.image;
+  }
+
+  const author = await Author.findByIdAndUpdate(
+    req.params.authorId,
+    { ...req.body, image: imageName },
+    { new: true, runValidators: true },
+  );
 
   if (!author) {
     return res.status(404).json({ errors: [`Author not found with id: ${req.params.authorId}`] });
@@ -446,6 +479,13 @@ exports.getPopularAuthorsAndThierPoularBooks = asyncHandler(async (req, res, nex
       },
     ]);
 
+    if (popularAuthors.length === 0 || popularBooks.length === 0) {
+      return res.status(404).json({
+        success: false,
+        errors: ['Results not found'],
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: {
@@ -511,6 +551,12 @@ exports.getPopularAuthorsAndThierPoularBooks = asyncHandler(async (req, res, nex
 //         $limit: 10,
 //       },
 //     ]);
+// if (popularAuthors.length === 0 || popularBooks.length === 0) {
+//   return res.status(404).json({
+//     success: false,
+//     errors: ['Results not found'],
+//   });
+// }
 
 //     res.status(200).json({
 //       success: true,
