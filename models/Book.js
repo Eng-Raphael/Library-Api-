@@ -30,11 +30,7 @@ const BookSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  reviews: [
-    {
-      type: String,
-    },
-  ],
+  reviews: [String],
 }, { timestamps: true });
 
 BookSchema.methods.addRating = function (rating) {

@@ -107,3 +107,81 @@ exports.deleteBookForUser = asyncHandler(async (req, res, next) => {
     res.status(500).json({ success: false, errors: ['User Not found to add book'] });
   }
 });
+
+// @desc      add review to a book
+// @route     POST /api/user/book/:id/review
+// @access    Private
+exports.addReviewToBook = asyncHandler(async (req, res, next) => {
+  const review = req.body.review;
+  const bookId = req.params.id;
+  if (req.params.id) {
+    const book = await Book.findById(bookId);
+
+    if (!book) {
+      return res.status(404).json({ success: false, message: 'Book not found' });
+    }
+
+    book.reviews.push(review);
+    await book.save();
+    res.status(200).json({ success: true, message: 'Review added to book' });
+  } else {
+    res.status(500).json({ success: false, errors: ['Server error'] });
+  }
+});
+
+// @desc      update review to a book
+// @route     PUT /api/user/book/:id/review
+// @access    Private
+exports.updateReviewForBook = asyncHandler(async (req, res, next) => {
+  const bookId = req.params.id;
+  // const { oldReview, newReview } = req.body;
+
+  const oldReview = req.body.oldReview;
+  const newReview = req.body.newReview;
+
+  if (req.params.id) {
+    const book = await Book.findById(bookId);
+
+    if (!book) {
+      return res.status(404).json({ success: false, message: 'Book not found' });
+    }
+
+    const reviewIndex = book.reviews.indexOf(oldReview);
+    if (reviewIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Review not found for book' });
+    }
+
+    book.reviews[reviewIndex] = newReview;
+    await book.save();
+
+    res.status(200).json({ success: true, message: 'Review updated for book' });
+  } else {
+    res.status(500).json({ success: false, errors: ['Server error'] });
+  }
+});
+// @desc      delete review to a book
+// @route     DELETE /api/user/book/:id/review
+// @access    Private
+exports.deleteReviewForBook = asyncHandler(async (req, res, next) => {
+  const bookId = req.params.id;
+  const review = req.body.review;
+  if (req.params.id) {
+    const book = await Book.findById(bookId);
+
+    if (!book) {
+      return res.status(404).json({ success: false, message: 'Book not found' });
+    }
+
+    const reviewIndex = book.reviews.indexOf(review);
+    if (reviewIndex === -1) {
+      return res.status(404).json({ success: false, message: 'Review not found for book' });
+    }
+
+    book.reviews.splice(reviewIndex, 1);
+    await book.save();
+
+    res.status(200).json({ success: true, message: 'Review deleted for book' });
+  } else {
+    res.status(500).json({ success: false, errors: ['Server error'] });
+  }
+});
