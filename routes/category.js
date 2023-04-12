@@ -18,7 +18,7 @@ const Category = require('../models/Category');
 
 router.route('/').get(advancedResults(Category), getCategories);
 router.get('/', getCategories);
-router.get('/popular', protect, getPopularCategory);
+router.get('/popular', getPopularCategory);
 router.get('/:categoryId', getCategory);
 router.get('/:id/books', getAllBooksOfCategory);
 router.post('/', protect, authorize('admin'), createCategory);
