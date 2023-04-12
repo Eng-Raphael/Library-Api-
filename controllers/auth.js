@@ -14,7 +14,7 @@ const User = require('../models/User');
 
 exports.register = asyncHandler(async (req, res, next) => {
   const { firstName, lastName } = req.body;
-  const { file } = req.files;
+  const { image } = req.files;
 
   // Run validations
   await Promise.all([
@@ -48,16 +48,16 @@ exports.register = asyncHandler(async (req, res, next) => {
         return true;
       })
       .run(req),
-    body('file')
+    body('image')
       .custom((value, { req }) => {
         if (!value) {
-          throw new Error('Please upload a file');
+          throw new Error('Please upload a image');
         }
         return true;
       })
       .custom((value, { req }) => {
         if (!value.mimetype.startsWith('image')) {
-          throw new Error('Please upload an image file');
+          throw new Error('Please upload an image image');
         }
         return true;
       })
@@ -79,7 +79,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   });
 
   errors.array().forEach((error) => {
-    if (error.param === 'file') {
+    if (error.param === 'image') {
       validationResult(req).addError(error);
     }
   });
@@ -89,11 +89,11 @@ exports.register = asyncHandler(async (req, res, next) => {
   }
 
   // Create custom file name
-  const fileExt = path.extname(file.name);
+  const fileExt = path.extname(image.name);
   const fileName = `photo_user_${firstName}_${lastName}${fileExt}`;
 
   // Move file to upload directory
-  await file.mv(`${process.env.FILE_UPLOAD_PATH}/users/${fileName}`);
+  await image.mv(`${process.env.FILE_UPLOAD_PATH}/users/${fileName}`);
 
   // Create user
   const user = await User.create({

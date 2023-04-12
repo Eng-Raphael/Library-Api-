@@ -82,32 +82,33 @@ exports.createAuthor = [
         dob: req.body.dob,
       });
 
-      if (!req.files) {
-        return res.status(400).json({ errors: ['Please upload a file'] });
-      }
-
-      const file = req.files.image;
-
-      if (!file.mimetype.startsWith('image')) {
+      if (!req.files || !req.files.image) {
         return res.status(400).json({ errors: ['Please upload an image file'] });
       }
 
-      if (file.size > process.env.MAX_FILE_UPLOAD) {
+      const { image } = req.files;
+
+      if (!image.mimetype.startsWith('image')) {
+        return res.status(400).json({ errors: ['Please upload an image file'] });
+      }
+
+      if (image.size > process.env.MAX_FILE_UPLOAD) {
         return res.status(400).json({
           errors: [`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`],
         });
       }
 
-      file.name = `photo_author_${req.body.firstName + req.body.lastName}${path.parse(file.name).ext}`;
+      const imageExt = path.extname(image.name);
+      const imageName = `photo_author_${req.body.firstName}_${req.body.lastName}${imageExt}`;
 
-      file.mv(
-        `${process.env.FILE_UPLOAD_PATH}/authors/${file.name}`,
+      image.mv(
+        `${process.env.FILE_UPLOAD_PATH}/authors/${imageName}`,
         async (err) => {
           if (err) {
             return res.status(500).json({ errors: ['Error while file upload'] });
           }
 
-          author.image = file.name;
+          author.image = imageName;
 
           await author.save();
 
@@ -122,7 +123,6 @@ exports.createAuthor = [
     }
   },
 ];
-
 // @desc Update an author
 // @route PUT /api/authors/:authorId
 // @access Private (Admin)
