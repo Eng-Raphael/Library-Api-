@@ -95,10 +95,14 @@ const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, console.log(`server running in ${process.env.NODE_ENV} mode on port ${process.env.PORT}`.yellow.bold));
 
-// Handle unhandled rejection
-// eslint-disable-next-line no-unused-vars
-process.on('unhandledRejection', (err, Promise) => {
-  console.log(`Error: ${err.message}`.red.bold);
-  // close server
-  server.close(() => { process.exit(1); });
-});
+try {
+  // Handle unhandled rejection
+  // eslint-disable-next-line no-unused-vars
+  process.on('unhandledRejection', (err, Promise) => {
+    console.log(`Error: ${err.message}`.red.bold);
+    // close server
+    server.close(() => { process.exit(1); });
+  });
+} catch (error) {
+  console.log(error);
+}
