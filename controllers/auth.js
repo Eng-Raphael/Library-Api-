@@ -14,7 +14,7 @@ const User = require('../models/User');
 
 exports.register = asyncHandler(async (req, res, next) => {
   const { firstName, lastName } = req.body;
-  const { image } = req.files;
+  const image = req.files ? req.files.image : null;
 
   // Run validations
   await Promise.all([
@@ -32,6 +32,13 @@ exports.register = asyncHandler(async (req, res, next) => {
       .notEmpty().withMessage('Please add an email')
       .isEmail()
       .withMessage('Please add a valid email')
+      .custom(async (value, { req }) => {
+        const user = await User.findOne({ email: value });
+        if (user) {
+          throw new Error('Email already exists');
+        }
+        return true;
+      })
       .run(req),
     body('password')
       .notEmpty().withMessage('Please add a password')
@@ -72,20 +79,12 @@ exports.register = asyncHandler(async (req, res, next) => {
   // Check for validation errors
   const errors = validationResult(req);
 
-  errors.array().forEach((error) => {
-    if (error.param === 'username') {
-      validationResult(req).addError(error);
-    }
-  });
-
-  errors.array().forEach((error) => {
-    if (error.param === 'image') {
-      validationResult(req).addError(error);
-    }
-  });
-
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
+  }
+
+  if (!image) {
+    return res.status(400).json({ errors: ['Please upload an image'] });
   }
 
   // Create custom file name
@@ -116,7 +115,9 @@ exports.login = asyncHandler(async (req, res, next) => {
       .withMessage('Please provide a valid username')
       .run(req),
     body('password')
-      .notEmpty().withMessage('Please provide a password')
+      .notEmpty().withMessage('Please add a password')
+      .isLength({ min: 8 })
+      .withMessage('Password should be at least 8 characters long')
       .run(req),
   ]);
 
@@ -131,7 +132,7 @@ exports.login = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ username }).select('+password');
 
   if (!user) {
-    return res.status(401).json({ errors: ['Invalid credentials'] });
+    return res.status(401).json({ errors: [`Invalid credentials , user ${username} not found`] });
   }
 
   // Check if password is valid
