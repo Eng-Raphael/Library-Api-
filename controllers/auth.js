@@ -249,5 +249,6 @@ const sendTokenResponse = (user, statuscode, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       image: user.image,
+      books: user.books,
     });
 };
