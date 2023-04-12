@@ -233,6 +233,7 @@ exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
           _id: '$_id',
           firstName: { $first: '$firstName' },
           lastName: { $first: '$lastName' },
+          image: { $first: '$image' },
           avgRating: { $avg: '$books.avgRating' },
         },
       },
@@ -242,18 +243,58 @@ exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
         },
       },
       {
-        $limit: 3,
+        $limit: 4,
+      },
+      {
+        $lookup: {
+          from: 'books',
+          localField: '_id',
+          foreignField: 'author',
+          as: 'books',
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          firstName: 1,
+          lastName: 1,
+          avgRating: 1,
+          image: 1,
+          books: 1,
+        },
       },
     ]);
-
     // Find the books with the highest average rating
     const popularBooks = await Book.aggregate([
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'category',
+          foreignField: '_id',
+          as: 'category',
+        },
+      },
+      {
+        $unwind: '$category',
+      },
+      {
+        $lookup: {
+          from: 'authors',
+          localField: 'author',
+          foreignField: '_id',
+          as: 'author',
+        },
+      },
+      {
+        $unwind: '$author',
+      },
       {
         $group: {
           _id: '$_id',
           name: { $first: '$name' },
           category: { $first: '$category' },
           author: { $first: '$author' },
+          image: { $first: '$image' },
           avgRating: { $avg: '$avgRating' },
         },
       },
@@ -263,7 +304,7 @@ exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
         },
       },
       {
-        $limit: 10,
+        $limit: 4,
       },
     ]);
 
@@ -278,6 +319,71 @@ exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
+// exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
+//   try {
+//     // Find the author with the highest average rating
+//     const popularAuthors = await Author.aggregate([
+//       {
+//         $lookup: {
+//           from: 'books',
+//           localField: '_id',
+//           foreignField: 'author',
+//           as: 'books',
+//         },
+//       },
+//       {
+//         $unwind: '$books',
+//       },
+//       {
+//         $group: {
+//           _id: '$_id',
+//           firstName: { $first: '$firstName' },
+//           lastName: { $first: '$lastName' },
+//           avgRating: { $avg: '$books.avgRating' },
+//         },
+//       },
+//       {
+//         $sort: {
+//           avgRating: -1,
+//         },
+//       },
+//       {
+//         $limit: 3,
+//       },
+//     ]);
+
+//     // Find the books with the highest average rating
+//     const popularBooks = await Book.aggregate([
+//       {
+//         $group: {
+//           _id: '$_id',
+//           name: { $first: '$name' },
+//           category: { $first: '$category' },
+//           author: { $first: '$author' },
+//           avgRating: { $avg: '$avgRating' },
+//         },
+//       },
+//       {
+//         $sort: {
+//           avgRating: -1,
+//         },
+//       },
+//       {
+//         $limit: 10,
+//       },
+//     ]);
+
+//     res.status(200).json({
+//       success: true,
+//       data: {
+//         popularAuthor: popularAuthors.slice(0, 3),
+//         popularBooks,
+//       },
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 
 // @desc GET popular authors with thier popular books 3 for each
 // @route GET /api/authors/books/popular
