@@ -46,7 +46,13 @@ exports.getCategory = asyncHandler(async (req, res, next) => {
 exports.createCategory = [
   body('name')
     .isLength({ min: 3, max: 20 })
-    .withMessage('Category name must be between 3 and 20 characters'),
+    .withMessage('Category name must be between 3 and 20 characters')
+    .custom(async (value) => {
+      const category = await Category.findOne({ name: value });
+      if (category) {
+        throw new Error('Category name already exists');
+      }
+    }),
   // eslint-disable-next-line consistent-return
   async (req, res, next) => {
     try {
@@ -76,21 +82,22 @@ exports.createCategory = [
 // @route PUT /api/categories/:categoryId
 // @access Private (Admin)
 exports.updateCategory = asyncHandler(async (req, res, next) => {
-  let category = await Category.findById(req.params.categoryId);
+  const { name } = req.body;
 
+  const category = await Category.findById(req.params.categoryId);
   if (!category) {
     return res.status(404).json({ errors: [`Category with id ${req.params.categoryId} not found`] });
   }
 
-  const { name } = req.body;
-
-  if (name) {
-    category = await Category.findByIdAndUpdate(
-      req.params.categoryId,
-      { name },
-      { new: true, runValidators: true },
-    );
+  // Check if category name already exists
+  const categoryByName = await Category.findOne({ name });
+  if (categoryByName && categoryByName._id.toString() !== req.params.categoryId) {
+    return res.status(400).json({ errors: ['Category name already exists'] });
   }
+
+  // Update category name
+  category.name = name;
+  await category.save();
 
   res.status(200).json({ success: true, data: category });
 });
