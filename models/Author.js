@@ -26,7 +26,6 @@ const AuthorSchema = new mongoose.Schema({
         },
         message: 'Date of birth cannot be in the future',
       },
-
     ],
   },
   image: {
