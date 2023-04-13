@@ -35,7 +35,7 @@ exports.getAllBooksOfCategory = asyncHandler(async (req, res) => {
 exports.getCategory = asyncHandler(async (req, res, next) => {
   const category = await Category.findById(req.params.categoryId);
   if (!category) {
-    return res.status(404).json({ errors: [`Category not found with id: ${req.params.categoryId}`] });
+    return res.status(404).json({ success: false, errors: [`Category not found with id: ${req.params.categoryId}`] });
   }
   return res.status(200).json({ success: true, data: category });
 });
@@ -59,7 +59,7 @@ exports.createCategory = [
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         const errorArray = errors.array().map((error) => error.msg);
-        return res.status(400).json({ errors: errorArray });
+        return res.status(400).json({ success: false, errors: errorArray });
       }
 
       const category = new Category({
@@ -86,13 +86,13 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
 
   const category = await Category.findById(req.params.categoryId);
   if (!category) {
-    return res.status(404).json({ errors: [`Category with id ${req.params.categoryId} not found`] });
+    return res.status(404).json({ success: false, errors: [`Category with id ${req.params.categoryId} not found`] });
   }
 
   // Check if category name already exists
   const categoryByName = await Category.findOne({ name });
   if (categoryByName && categoryByName._id.toString() !== req.params.categoryId) {
-    return res.status(400).json({ errors: ['Category name already exists'] });
+    return res.status(400).json({ success: false, errors: ['Category name already exists'] });
   }
 
   // Update category name
@@ -111,7 +111,7 @@ exports.deleteCategory = async (req, res, next) => {
     const category = await Category.findById(req.params.categoryId);
 
     if (!category) {
-      return res.status(404).json({ errors: [`Category not found with id of ${req.params.categoryId}`] });
+      return res.status(404).json({ success: false, errors: [`Category not found with id of ${req.params.categoryId}`] });
     }
 
     // Delete all books related to the category
@@ -151,7 +151,7 @@ exports.getPopularCategory = asyncHandler(async (req, res, next) => {
     ]);
 
     if (categoriesWithHighestAvgRating.length === 0) {
-      res.status(404).json({ errors: ['no category found'] });
+      res.status(404).json({ success: false, errors: ['no category found'] });
     }
 
     const categoryIds = categoriesWithHighestAvgRating.map((category) => category._id);

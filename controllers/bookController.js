@@ -29,7 +29,7 @@ exports.getBooks = asyncHandler(async (req, res) => {
 exports.getBook = asyncHandler(async (req, res, next) => {
   const book = await Book.findById(req.params.bookId).populate('author').populate('category');
   if (!book) {
-    return res.status(404).json({ errors: [`Book not found with id: ${req.params.bookId}`] });
+    return res.status(404).json({ success: false, errors: [`Book not found with id: ${req.params.bookId}`] });
   }
   return res.status(200).json({ success: true, data: book });
 });
@@ -68,21 +68,21 @@ exports.createBook = [
     try {
       const errors = validationResult(req).formatWith(({ msg }) => msg);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ success: false, errors: errors.array() });
       }
 
       const category = await Category.findById(req.body.category);
       if (!category) {
-        errors.errors.push({ errors: `Category ${req.body.category} not found` });
+        errors.errors.push({ success: false, errors: `Category ${req.body.category} not found` });
       }
 
       const author = await Author.findById(req.body.author);
       if (!author) {
-        errors.errors.push({ errors: `Author ${req.body.author} not found` });
+        errors.errors.push({ success: false, errors: `Author ${req.body.author} not found` });
       }
 
       if (errors.errors.length) {
-        return res.status(404).json({ errors: errors.array() });
+        return res.status(404).json({ success: false, errors: errors.array() });
       }
 
       const book = new Book({
@@ -145,11 +145,11 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const errorArray = errors.array().map((error) => error.msg);
-    return res.status(400).json({ errors: errorArray });
+    return res.status(400).json({ success: false, errors: errorArray });
   }
 
   if (!book) {
-    return res.status(404).json({ errors: ['Book not found'] });
+    return res.status(404).json({ success: false, errors: ['Book not found'] });
   }
 
   const { category, author } = req.body;
@@ -157,14 +157,14 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
   if (category) {
     const foundCategory = await Category.findById(category);
     if (!foundCategory) {
-      return res.status(404).json({ errors: [`Category ${category} not found`] });
+      return res.status(404).json({ success: false, errors: [`Category ${category} not found`] });
     }
   }
 
   if (author) {
     const foundAuthor = await Author.findById(author);
     if (!foundAuthor) {
-      return res.status(404).json({ errors: [`Author ${author} not found`] });
+      return res.status(404).json({ success: false, errors: [`Author ${author} not found`] });
     }
   }
 
@@ -181,7 +181,7 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
       async (err) => {
         if (err) {
           console.error(err);
-          return res.status(500).json({ errors: ['Error while file upload'] });
+          return res.status(500).json({ success: false, errors: ['Error while file upload'] });
         }
       },
     );
@@ -207,7 +207,7 @@ exports.deleteBook = async (req, res, next) => {
     const book = await Book.findById(req.params.bookId);
 
     if (!book) {
-      return res.status(404).json({ errors: [`Book not found with id of ${req.params.bookId}`] });
+      return res.status(404).json({ success: false, errors: [`Book not found with id of ${req.params.bookId}`] });
     }
 
     if (book.image !== 'default.jpg') {

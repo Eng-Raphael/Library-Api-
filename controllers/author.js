@@ -6,7 +6,6 @@ const fs = require('fs');
 const path = require('path');
 const { body, validationResult } = require('express-validator');
 const asyncHandler = require('../middleware/async');
-const ErrorResponse = require('../utils/errorResponse');
 
 const Author = require('../models/Author');
 const Book = require('../models/Book');
@@ -54,7 +53,7 @@ exports.getAuthors = asyncHandler(async (req, res) => {
 exports.getAuthor = asyncHandler(async (req, res, next) => {
   const author = await Author.findById(req.params.authorId);
   if (!author) {
-    return res.status(404).json({ errors: [`Author not found with id: ${req.params.authorId}`] });
+    return res.status(404).json({ success: false, errors: [`Author not found with id: ${req.params.authorId}`] });
   }
   return res.status(200).json({ success: true, data: author });
 });
@@ -104,17 +103,17 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ success: false, errors: errors.array() });
   }
 
   const { firstName, lastName, dob } = req.body;
   if (!image) {
-    return res.status(400).json({ errors: ['Please upload an image'] });
+    return res.status(400).json({ success: false, errors: ['Please upload an image'] });
   }
   // Check if author already exists
   const existingAuthor = await Author.findOne({ firstName, lastName });
   if (existingAuthor) {
-    return res.status(400).json({ errors: ['Author with this name already exists'] });
+    return res.status(400).json({ success: false, errors: ['Author with this name already exists'] });
   }
   const imageExt = path.extname(image.name);
   const imageName = `photo_author_${firstName}_${lastName}${imageExt}`;
@@ -123,7 +122,7 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
     `${process.env.FILE_UPLOAD_PATH}/authors/${imageName}`,
     async (err) => {
       if (err) {
-        return res.status(500).json({ errors: ['Error while file upload'] });
+        return res.status(500).json({ success: false, errors: ['Error while file upload'] });
       }
 
       const author = new Author({
@@ -174,7 +173,7 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ success: false, errors: errors.array() });
   }
 
   const { firstName, lastName } = req.body;
@@ -187,7 +186,7 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
       `${process.env.FILE_UPLOAD_PATH}/authors/${imageName}`,
       async (err) => {
         if (err) {
-          return res.status(500).json({ errors: ['Error while file upload'] });
+          return res.status(500).json({ success: false, errors: ['Error while file upload'] });
         }
       },
     );
@@ -203,7 +202,7 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
   );
 
   if (!author) {
-    return res.status(404).json({ errors: [`Author not found with id: ${req.params.authorId}`] });
+    return res.status(404).json({ success: false, errors: [`Author not found with id: ${req.params.authorId}`] });
   }
 
   return res.status(200).json({ success: true, data: author });
@@ -218,7 +217,7 @@ exports.deleteAuthor = asyncHandler(async (req, res, next) => {
     const author = await Author.findById(req.params.authorId);
 
     if (!author) {
-      return res.status(404).json({ errors: [`author not found with id of ${req.params.authorId}`] });
+      return res.status(404).json({ success: false, errors: [`author not found with id of ${req.params.authorId}`] });
     }
 
     // Delete all books related to the author

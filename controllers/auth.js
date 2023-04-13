@@ -80,11 +80,11 @@ exports.register = asyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ success: false, errors: errors.array() });
   }
 
   if (!image) {
-    return res.status(400).json({ errors: ['Please upload an image'] });
+    return res.status(400).json({ success: false, errors: ['Please upload an image'] });
   }
 
   // Create custom file name
@@ -123,7 +123,7 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ success: false, errors: errors.array() });
   }
 
   const { username, password } = req.body;
@@ -132,13 +132,13 @@ exports.login = asyncHandler(async (req, res, next) => {
   const user = await User.findOne({ username }).select('+password');
 
   if (!user) {
-    return res.status(401).json({ errors: [`Invalid credentials , user ${username} not found`] });
+    return res.status(401).json({ success: false, errors: [`Invalid credentials , user ${username} not found`] });
   }
 
   // Check if password is valid
   const isMatch = await user.matchPassword(password);
   if (!isMatch) {
-    return res.status(401).json({ errors: ['Invalid credentials'] });
+    return res.status(401).json({ success: false, errors: ['Invalid credentials'] });
   }
 
   sendTokenResponse(user, 200, res);
@@ -180,7 +180,7 @@ exports.updateDetails = asyncHandler(async (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ success: false, errors: errors.array() });
   }
 
   const fieldsToUpdate = {
@@ -204,7 +204,7 @@ exports.updateDetails = asyncHandler(async (req, res) => {
 exports.updatePassword = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id).select('+password');
   if (!await user.matchPassword(req.body.currentPassword)) {
-    return next(new ErrorResponse('Password is incorrect', 401));
+    return res.status(401).json({ success: false, errors: ['Password is incorrect'] });
   }
   user.password = req.body.newPassword;
   await user.save();
