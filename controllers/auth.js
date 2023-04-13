@@ -56,15 +56,15 @@ exports.register = asyncHandler(async (req, res, next) => {
       })
       .run(req),
     body('image')
-      .custom((value, { req }) => {
-        if (!value) {
-          throw new Error('Please upload a image');
-        }
-        return true;
-      })
+      // .custom((value, { req }) => {
+      //   if (!value) {
+      //     throw new Error('Please upload a image');
+      //   }
+      //   return true;
+      // })
       .custom((value, { req }) => {
         if (!value.mimetype.startsWith('image')) {
-          throw new Error('Please upload an image image');
+          throw new Error('Please upload an image of type image');
         }
         return true;
       })
