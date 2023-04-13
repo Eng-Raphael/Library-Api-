@@ -231,7 +231,7 @@ exports.deleteAuthor = asyncHandler(async (req, res, next) => {
       }
     }
 
-    await Author.deleteOne();
+    await Author.deleteOne({ _id: req.params.authorId });
 
     res.status(200).json({
       success: true,
