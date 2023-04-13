@@ -11,7 +11,6 @@ const fs = require('fs');
 const path = require('path');
 const { body, validationResult } = require('express-validator');
 const asyncHandler = require('../middleware/async');
-const ErrorResponse = require('../utils/errorResponse');
 
 const Book = require('../models/Book');
 const Category = require('../models/Category');
@@ -28,7 +27,7 @@ exports.getBooks = asyncHandler(async (req, res) => {
 // @route GET /api/books/:bookId
 // @access Public
 exports.getBook = asyncHandler(async (req, res, next) => {
-  const book = await Book.findById(req.params.bookId);
+  const book = await Book.findById(req.params.bookId).populate('author').populate('category');
   if (!book) {
     return res.status(404).json({ errors: [`Book not found with id: ${req.params.bookId}`] });
   }
@@ -67,23 +66,23 @@ exports.createBook = [
 
   async (req, res, next) => {
     try {
-      const errors = validationResult(req);
+      const errors = validationResult(req).formatWith(({ msg }) => msg);
       if (!errors.isEmpty()) {
-        const errorArray = errors.array().map((error) => error.msg);
-        return res.status(400).json({ errors: errorArray });
+        return res.status(400).json({ errors: errors.array() });
       }
 
-      if (req.body.category) {
-        const foundCategory = await Category.findById(req.body.category);
-        if (!foundCategory) {
-          return res.status(404).json({ errors: `Category ${req.body.category} not found` });
-        }
+      const category = await Category.findById(req.body.category);
+      if (!category) {
+        errors.errors.push({ errors: `Category ${req.body.category} not found` });
       }
-      if (req.body.author) {
-        const foundAuthor = await Author.findById(req.body.author);
-        if (!foundAuthor) {
-          return res.status(404).json({ errors: `Author ${req.body.author} not found` });
-        }
+
+      const author = await Author.findById(req.body.author);
+      if (!author) {
+        errors.errors.push({ errors: `Author ${req.body.author} not found` });
+      }
+
+      if (errors.errors.length) {
+        return res.status(404).json({ errors: errors.array() });
       }
 
       const book = new Book({
@@ -114,29 +113,33 @@ exports.createBook = [
 exports.updateBook = asyncHandler(async (req, res, next) => {
   let book = await Book.findById(req.params.bookId);
 
-  // Validate input fields
-  await body('name')
-    .isLength({ min: 3, max: 50 })
-    .withMessage('Book name must be between 3 and 50 characters')
-    .run(req);
-  await body('category').exists().withMessage('Category is required').run(req);
-  await body('author').exists().withMessage('Author is required').run(req);
+  // Define validation rules
+  const rules = [
+    body('name')
+      .isLength({ min: 3, max: 50 })
+      .withMessage('Book name must be between 3 and 50 characters'),
+    body('category').exists().withMessage('Category is required'),
+    body('author').exists().withMessage('Author is required'),
+  ];
 
-  // Validate file
-  if (req.files && req.files.file) {
-    await body('file')
-      .custom((value, { req }) => {
-        const { file } = req.files.file;
-        if (!file.mimetype.startsWith('image')) {
+  // If file is provided, add file validation rule
+  if (req.files && req.files.image) {
+    rules.push(
+      body('image').custom((value, { req }) => {
+        const { image } = req.files.file;
+        if (!image.mimetype.startsWith('image')) {
           throw new Error('Please upload an image file');
         }
-        if (file.size > process.env.MAX_FILE_UPLOAD) {
+        if (image.size > process.env.MAX_FILE_UPLOAD) {
           throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
         }
         return true;
-      })
-      .run(req);
+      }),
+    );
   }
+
+  // Validate input fields and file
+  await Promise.all(rules.map((rule) => rule.run(req)));
 
   // Check for validation errors
   const errors = validationResult(req);
@@ -144,6 +147,7 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
     const errorArray = errors.array().map((error) => error.msg);
     return res.status(400).json({ errors: errorArray });
   }
+
   if (!book) {
     return res.status(404).json({ errors: ['Book not found'] });
   }
@@ -164,15 +168,16 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
     }
   }
 
-  if (req.files && req.files.file) {
+  // If no file is provided, use the current image in db
+  if (!req.files || !req.files.file) {
+    req.body.image = book.image;
+  } else {
     const { file } = req.files.file;
 
-    // eslint-disable-next-line no-underscore-dangle
     file.name = `photo_book_${req.body.name}${path.parse(file.name).ext}`;
 
     file.mv(
       `${process.env.FILE_UPLOAD_PATH}/books/${file.name}`,
-      // eslint-disable-next-line consistent-return
       async (err) => {
         if (err) {
           console.error(err);
