@@ -35,10 +35,14 @@ const BookSchema = new mongoose.Schema({
 
 BookSchema.methods.addRating = function (rating) {
   // Calculate the new average rating of the book
-  const oldRating = this.avgRating * this.totalRatings;
   this.totalRatings += 1;
-  this.avgRating = (oldRating + rating) / this.totalRatings;
-  this.avgRating *= 20;
+  if (this.totalRatings === 1) {
+    this.avgRating = rating;
+  } else {
+    const oldRating = this.avgRating;
+    this.avgRating = (Number(oldRating) + Number(rating)) / 2;
+  }
+
   return this.save();
 };
 
@@ -50,11 +54,12 @@ BookSchema.statics.deleteRating = async function (bookId, rating) {
   const oldRating = book.avgRating * book.totalRatings;
   book.totalRatings -= 1;
   if (book.totalRatings > 0) {
-    book.avgRating = (oldRating - rating) / book.totalRatings;
+    book.avgRating = (oldRating - Number(rating)) / book.totalRatings;
   } else {
     book.avgRating = 0;
   }
   book.avgRating *= 20;
+
   return book.save();
 };
 
