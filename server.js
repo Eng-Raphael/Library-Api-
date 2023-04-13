@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable max-len */
 /* eslint-disable no-console */
 
 const express = require('express');
