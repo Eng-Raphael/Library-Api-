@@ -35,7 +35,7 @@ const errorHandler = (err, req, res, next) => {
     .json(
       {
         success: false,
-        error: error.message || 'server error',
+        errors: [error.message || 'server error'],
       },
     );
 };
