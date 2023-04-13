@@ -5,6 +5,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-use-before-define */
 /* eslint-disable consistent-return */
+
+const { body, check, validationResult } = require('express-validator');
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
 const Book = require('../models/Book');
@@ -26,6 +28,26 @@ exports.addBookToUser = asyncHandler(async (req, res, next) => {
         success: false,
         errors: [`Book with id ${bookId} is already added to user's list.`],
       });
+    }
+
+    // Define validation rules
+    const rules = [
+      check('shelve')
+        .isIn(['READING', 'READ', 'WANT_TO_READ'])
+        .withMessage('Shelve must be one of the following: READING, READ, WANT_TO_READ'),
+      check('rating')
+        .isInt({ min: 1, max: 5 })
+        .withMessage('Rating must be a number between 1 and 5'),
+    ];
+
+    // Validate input fields
+    await Promise.all(rules.map((rule) => rule.run(req)));
+
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const errorArray = errors.array().map((error) => error.msg);
+      return res.status(400).json({ success: false, errors: errorArray });
     }
 
     const user = await User.findOneAndUpdate(
@@ -54,6 +76,7 @@ exports.addBookToUser = asyncHandler(async (req, res, next) => {
 // @desc      update book to user
 // @route     PUT /api/user/book/:id
 // @access    Private
+
 exports.updateBookToUser = asyncHandler(async (req, res, next) => {
   const { shelve } = req.body;
   const { rating } = req.body;
@@ -70,6 +93,26 @@ exports.updateBookToUser = asyncHandler(async (req, res, next) => {
         success: false,
         errors: [`Book with id ${req.params.id} not found in user's list.`],
       });
+    }
+
+    // Define validation rules
+    const rules = [
+      check('shelve')
+        .isIn(['READING', 'READ', 'WANT_TO_READ'])
+        .withMessage('Shelve must be one of the following: READING, READ, WANT_TO_READ'),
+      check('rating')
+        .isInt({ min: 1, max: 5 })
+        .withMessage('Rating must be a number between 1 and 5'),
+    ];
+
+    // Validate input fields
+    await Promise.all(rules.map((rule) => rule.run(req)));
+
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const errorArray = errors.array().map((error) => error.msg);
+      return res.status(400).json({ success: false, errors: errorArray });
     }
 
     const book = await Book.findById(req.params.id);
@@ -113,29 +156,50 @@ exports.deleteBookForUser = asyncHandler(async (req, res, next) => {
 // @access    Private
 exports.addReviewToBook = asyncHandler(async (req, res, next) => {
   const review = req.body.review;
-  const bookId = req.params.id;
-  if (req.params.id) {
-    const book = await Book.findById(bookId);
-
-    if (!book) {
-      return res.status(404).json({ success: false, message: 'Book not found' });
-    }
-
-    book.reviews.push(review);
-    await book.save();
-    res.status(200).json({ success: true, message: 'Review added to book' });
-  } else {
-    res.status(500).json({ success: false, errors: ['Server error'] });
+  if (typeof review !== 'string') { // check if review is not a string
+    return res.status(400).json({ success: false, errors: [{ msg: 'Review must be a string' }] });
   }
+
+  const bookId = req.params.id;
+  if (!bookId) { // check if bookId is not provided
+    return res.status(400).json({ success: false, errors: [{ msg: 'Book ID is required' }] });
+  }
+
+  await body('review').isString().run(req);
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const book = await Book.findById(bookId);
+
+  if (!book) {
+    return res.status(404).json({ success: false, message: 'Book not found' });
+  }
+
+  book.reviews.push(review);
+  await book.save();
+  res.status(200).json({ success: true, message: 'Review added to book' });
 });
 
 // @desc      update review to a book
 // @route     PUT /api/user/book/:id/review
 // @access    Private
-exports.updateReviewForBook = asyncHandler(async (req, res, next) => {
-  const bookId = req.params.id;
-  // const { oldReview, newReview } = req.body;
 
+exports.updateReviewForBook = asyncHandler(async (req, res, next) => {
+  await Promise.all([
+    body('oldReview').isString().run(req),
+    body('newReview').isString().run(req),
+  ]);
+
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
+  const bookId = req.params.id;
   const oldReview = req.body.oldReview;
   const newReview = req.body.newReview;
 
@@ -159,12 +223,23 @@ exports.updateReviewForBook = asyncHandler(async (req, res, next) => {
     res.status(500).json({ success: false, errors: ['Server error'] });
   }
 });
+
 // @desc      delete review to a book
 // @route     DELETE /api/user/book/:id/review
 // @access    Private
+
 exports.deleteReviewForBook = asyncHandler(async (req, res, next) => {
+  await body('review').isString().run(req);
+
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
   const bookId = req.params.id;
   const review = req.body.review;
+
   if (req.params.id) {
     const book = await Book.findById(bookId);
 
