@@ -26,14 +26,6 @@ const AuthorSchema = new mongoose.Schema({
         },
         message: 'Date of birth cannot be in the future',
       },
-      {
-        validator(value) {
-          // Ensure age is at least 18 years
-          const age = (new Date() - value) / (365 * 24 * 60 * 60 * 1000);
-          return age >= 18;
-        },
-        message: 'You must be at least 18 years old',
-      },
     ],
   },
   image: {
