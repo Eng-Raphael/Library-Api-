@@ -59,7 +59,7 @@ exports.createBook = [
         throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
       }
 
-      req.body.image = `photo_profile_${req.body.name}${path.parse(file.name).ext}`;
+      req.body.imageName = `photo_profile_${req.body.name}${path.parse(file.name).ext}`;
 
       return true;
     }),
@@ -90,12 +90,17 @@ exports.createBook = [
         category: req.body.category,
         author: req.body.author,
         reviews: req.body.reviews,
-        image: req.body.image,
+        image: req.body.imageName,
       });
 
+      // Save the book image file
+      const file = req.files.image;
+      const imagePath = `./public/uploads/books/${req.body.imageName}`;
+      await file.mv(imagePath);
+
       const savedBook = await book.save();
-      // return the image URL in the response
-      // const imageUrl = `${req.protocol}://${req.get('host')}/uploads/books/${req.body.image}`;
+
+      // Return the book object in the response
       res.status(201).json({
         success: true,
         data: savedBook,
