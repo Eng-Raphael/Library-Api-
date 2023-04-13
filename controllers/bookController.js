@@ -126,7 +126,7 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
   if (req.files && req.files.image) {
     rules.push(
       body('image').custom((value, { req }) => {
-        const { image } = req.files.file;
+        const { image } = req.files; // fix destructuring here
         if (!image.mimetype.startsWith('image')) {
           throw new Error('Please upload an image file');
         }
@@ -169,15 +169,15 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
   }
 
   // If no file is provided, use the current image in db
-  if (!req.files || !req.files.file) {
+  if (!req.files || !req.files.image) {
     req.body.image = book.image;
   } else {
-    const { file } = req.files.file;
+    const { image } = req.files;
 
-    file.name = `photo_book_${req.body.name}${path.parse(file.name).ext}`;
+    image.name = `photo_book_${req.body.name}${path.parse(image.name).ext}`;
 
-    file.mv(
-      `${process.env.FILE_UPLOAD_PATH}/books/${file.name}`,
+    image.mv(
+      `${process.env.FILE_UPLOAD_PATH}/books/${image.name}`,
       async (err) => {
         if (err) {
           console.error(err);
@@ -186,7 +186,7 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
       },
     );
 
-    req.body.image = file.name;
+    req.body.image = image.name;
   }
 
   book = await Book.findByIdAndUpdate(req.params.bookId, req.body, {
