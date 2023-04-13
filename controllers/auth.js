@@ -17,7 +17,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   const image = req.files ? req.files.image : null;
 
   // Run validations
-  await Promise.all([
+  const validations = [
     body('firstName')
       .notEmpty().withMessage('Please add your first name')
       .isLength({ min: 2, max: 20 })
@@ -55,56 +55,63 @@ exports.register = asyncHandler(async (req, res, next) => {
         return true;
       })
       .run(req),
-    body('image')
-      // .custom((value, { req }) => {
-      //   if (!value) {
-      //     throw new Error('Please upload a image');
-      //   }
-      //   return true;
-      // })
-      .custom((value, { req }) => {
-        if (!value.mimetype.startsWith('image')) {
-          throw new Error('Please upload an image of type image');
-        }
-        return true;
-      })
-      .custom((value, { req }) => {
-        if (value.size > process.env.MAX_FILE_UPLOAD) {
-          throw new Error(`Please upload an image file less than ${process.env.MAX_FILE_UPLOAD}`);
-        }
-        return true;
-      }),
-  ]);
+  ];
+
+  if (image) {
+    validations.push(
+      body('image')
+        .custom((value, { req }) => {
+          if (!value.mimetype.startsWith('image')) {
+            throw new Error('Please upload an image of type image');
+          }
+          return true;
+        })
+        .custom((value, { req }) => {
+          if (value.size > process.env.MAX_FILE_UPLOAD) {
+            throw new Error(`Please upload an image file less than ${process.env.MAX_FILE_UPLOAD}`);
+          }
+          return true;
+        }),
+    );
+  }
 
   // Check for validation errors
+  await Promise.all(validations);
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
 
-  if (!image) {
-    return res.status(400).json({ success: false, errors: ['Please upload an image'] });
+  if (image) {
+    // Create custom file name
+    const fileExt = path.extname(image.name);
+    const fileName = `photo_user_${firstName}_${lastName}${fileExt}`;
+
+    // Move file to upload directory
+    await image.mv(`${process.env.FILE_UPLOAD_PATH}/users/${fileName}`);
+    const user = await User.create({
+      firstName,
+      lastName,
+      username: req.body.username,
+      email: req.body.email,
+      password: req.body.password,
+      image: image ? fileName : 'default.png',
+    });
+    sendTokenResponse(user, 200, res);
+  } else {
+    const user = await User.create({
+      firstName,
+      lastName,
+      username: req.body.username,
+      email: req.body.email,
+      password: req.body.password,
+      image: 'default.png',
+    });
+    sendTokenResponse(user, 200, res);
   }
 
-  // Create custom file name
-  const fileExt = path.extname(image.name);
-  const fileName = `photo_user_${firstName}_${lastName}${fileExt}`;
-
-  // Move file to upload directory
-  await image.mv(`${process.env.FILE_UPLOAD_PATH}/users/${fileName}`);
-
   // Create user
-  const user = await User.create({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    username: req.body.username,
-    email: req.body.email,
-    password: req.body.password,
-    image: fileName,
-  });
-
-  sendTokenResponse(user, 200, res);
 });
 
 exports.login = asyncHandler(async (req, res, next) => {
