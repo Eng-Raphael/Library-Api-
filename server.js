@@ -74,7 +74,7 @@ app.use(hpp());
 
 // Enable CORS
 const corsOptions = {
-  origin: 'http://localhost:4200',
+  origin: ['http://localhost:4200', 'https://goodreads-gyhr.onrender.com'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 };
 app.use(cors(corsOptions));
