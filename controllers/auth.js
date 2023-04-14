@@ -13,7 +13,7 @@ const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
 
 exports.register = asyncHandler(async (req, res, next) => {
-  const { firstName, lastName } = req.body;
+  const { firstName, lastName, username } = req.body;
   const image = req.files ? req.files.image : null;
 
   // Run validations
@@ -89,7 +89,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   if (image) {
     // Create custom file name
     const fileExt = path.extname(image.name);
-    const fileName = `photo_user_${firstName}_${lastName}${fileExt}`;
+    const fileName = `photo_user_${username}${fileExt}`;
 
     // Move file to upload directory
     await image.mv(`${process.env.FILE_UPLOAD_PATH}/users/${fileName}`);
