@@ -34,6 +34,9 @@ exports.getAllBooksOfCategory = asyncHandler(async (req, res) => {
 // @access Public
 exports.getCategory = asyncHandler(async (req, res, next) => {
   const category = await Category.findById(req.params.categoryId);
+  if (!req.params.categoryId) {
+    return res.status(400).json({ success: false, errors: ['categoryId parameter is missing'] });
+  }
   if (!category) {
     return res.status(404).json({ success: false, errors: [`Category not found with id: ${req.params.categoryId}`] });
   }
