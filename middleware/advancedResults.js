@@ -1,4 +1,4 @@
-const advancedResults = (model, ...populate) => async (req, res, next) => {
+const advancedResults = (model, populate = []) => async (req, res, next) => {
   let query;
   // copy req.qeury
   const reqQeury = { ...req.query };
@@ -42,9 +42,10 @@ const advancedResults = (model, ...populate) => async (req, res, next) => {
 
   query = query.skip(startIndex).limit(limit);
 
-  if (populate.length > 0) {
-    query = query.populate(populate);
-  }
+  // populate
+  populate.forEach((p) => {
+    query = query.populate(p);
+  });
 
   // execute query
   const results = await query;
