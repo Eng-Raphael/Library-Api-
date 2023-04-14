@@ -119,6 +119,9 @@ exports.login = asyncHandler(async (req, res, next) => {
   await Promise.all([
     body('username')
       .notEmpty().withMessage('Please provide an username')
+      .not()
+      .isNumeric()
+      .withMessage('Username cannot be a number')
       .matches(/^[a-zA-Z0-9@_$%^&*!]+$/, 'i')
       .withMessage('Please provide a valid username')
       .run(req),
