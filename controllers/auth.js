@@ -47,6 +47,8 @@ exports.register = asyncHandler(async (req, res, next) => {
       .run(req),
     body('username')
       .notEmpty().withMessage('Please add your user name')
+      .isNumeric()
+      .withMessage('Username cannot be a number')
       .custom(async (value, { req }) => {
         const user = await User.findOne({ username: value });
         if (user) {
@@ -110,8 +112,6 @@ exports.register = asyncHandler(async (req, res, next) => {
     });
     sendTokenResponse(user, 200, res);
   }
-
-  // Create user
 });
 
 exports.login = asyncHandler(async (req, res, next) => {
