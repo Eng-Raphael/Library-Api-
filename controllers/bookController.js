@@ -59,7 +59,7 @@ exports.createBook = [
         throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
       }
 
-      req.body.imageName = `photo_profile_${req.body.name}${path.parse(file.name).ext}`;
+      req.body.imageName = `photo_book_${req.body.name}${path.parse(file.name).ext}`;
 
       return true;
     }),
