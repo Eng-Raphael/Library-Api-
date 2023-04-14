@@ -47,6 +47,7 @@ exports.register = asyncHandler(async (req, res, next) => {
       .run(req),
     body('username')
       .notEmpty().withMessage('Please add your user name')
+      .not()
       .isNumeric()
       .withMessage('Username cannot be a number')
       .custom(async (value, { req }) => {
