@@ -16,7 +16,7 @@ const Book = require('../models/Book');
 
 const { protect, authorize } = require('../middleware/auth');
 
-router.route('/').get(advancedResults(Book, { path: 'author', select: 'firstName lastName' }), getBooks);
+router.route('/').get(advancedResults(Book, [{ path: 'author', select: 'firstName lastName' }, { path: 'category', select: 'name' }]), getBooks);
 router.get('/', getBooks);
 router.get('/:bookId', getBook);
 router.post('/', protect, authorize('admin'), createBook);
