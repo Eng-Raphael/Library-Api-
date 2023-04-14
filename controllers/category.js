@@ -86,6 +86,17 @@ exports.createCategory = [
 // @route PUT /api/categories/:categoryId
 // @access Private (Admin)
 exports.updateCategory = asyncHandler(async (req, res, next) => {
+  await body('name').isString().isLength({ min: 3, max: 20 }).withMessage('please make sure category name contains at least 3 characters to 20 character')
+    .not()
+    .isNumeric()
+    .withMessage('category name can not be a number')
+    .run(req);
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ success: false, errors: errors.array() });
+  }
+
   const { name } = req.body;
 
   const category = await Category.findById(req.params.categoryId);
