@@ -47,6 +47,9 @@ exports.createCategory = [
   body('name')
     .isLength({ min: 3, max: 20 })
     .withMessage('Category name must be between 3 and 20 characters')
+    .not()
+    .isNumeric()
+    .withMessage('Category cannot be a number')
     .custom(async (value) => {
       const category = await Category.findOne({ name: value });
       if (category) {
