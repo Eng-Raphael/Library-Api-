@@ -40,7 +40,10 @@ exports.getBook = asyncHandler(async (req, res, next) => {
 exports.createBook = [
   body('name')
     .isLength({ min: 3, max: 50 })
-    .withMessage('Book name must be between 3 and 50 characters'),
+    .withMessage('Book name must be between 3 and 50 characters')
+    .not()
+    .isNumeric()
+    .withMessage('Book name cannot be a number'),
   body('category').exists().withMessage('Category is required'),
   body('author').exists().withMessage('Author is required'),
   body('image')
