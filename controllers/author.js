@@ -93,14 +93,15 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
     body('image')
       .exists()
       .withMessage('Please upload an image file')
-      // .custom((value, { req }) => {
-      //   if (!value.mimetype.startsWith('image')) {
-      //     throw new Error('Please upload an image file');
-      //   }
-      //   return true;
-      // })
+      .custom((value, { req }) => {
+        if (!value.mimetype.startsWith('image')) {
+          throw new Error('Please upload an image file');
+        }
+        return true;
+      })
       .custom((value, { req }) => {
         const imageExt = path.extname(value.name).toLowerCase();
+        console.log(imageExt);
         if (!validExtensions.includes(imageExt)) {
           throw new Error('Invalid image file extension. Please upload a jpg, jpeg, png, or gif file.');
         }
