@@ -297,49 +297,11 @@ exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
       },
     ]);
     // Find the books with the highest average rating
-    const popularBooks = await Book.aggregate([
-      {
-        $lookup: {
-          from: 'categories',
-          localField: 'category',
-          foreignField: '_id',
-          as: 'category',
-        },
-      },
-      {
-        $unwind: '$category',
-      },
-      {
-        $lookup: {
-          from: 'authors',
-          localField: 'author',
-          foreignField: '_id',
-          as: 'author',
-        },
-      },
-      {
-        $unwind: '$author',
-      },
-      {
-        $group: {
-          _id: '$_id',
-          name: { $first: '$name' },
-          category: { $first: '$category' },
-          author: { $first: '$author' },
-          image: { $first: '$image' },
-          avgRating: { $max: '$avgRating' },
-        },
-      },
-      {
-        $sort: {
-          avgRating: -1,
-          totalRatings: -1,
-        },
-      },
-      {
-        $limit: 4,
-      },
-    ]);
+    const popularBooks = await Book.find()
+      .sort({ avgRating: -1 })
+      .limit(5)
+      .populate('author')
+      .populate('category');
 
     res.status(200).json({
       success: true,
