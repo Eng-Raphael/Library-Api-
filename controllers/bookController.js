@@ -51,22 +51,20 @@ exports.createBook = [
 
       const file = req.files.image;
 
-      const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif'];
-      const fileExtension = path.extname(file.name).toLowerCase();
-
       if (!file.mimetype.startsWith('image')) {
         throw new Error('Please upload an image file');
-      }
-
-      if (!allowedExtensions.includes(fileExtension)) {
-        throw new Error('Please upload an image file with png, jpg, jpeg or gif extension');
       }
 
       if (file.size > process.env.MAX_FILE_UPLOAD) {
         throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
       }
+      const imageExt = path.extname(file.name);
 
-      req.body.imageName = `photo_book_${req.body.name}${path.parse(file.name).ext}`;
+      if (imageExt === '.pdf' || imageExt === '.word' || imageExt === '.excel' || imageExt === '.ppt') {
+        throw new Error(`file extension can not be ${imageExt}`);
+      }
+
+      req.body.imageName = `photo_book_${req.body.name}${imageExt}`;
 
       return true;
     }),

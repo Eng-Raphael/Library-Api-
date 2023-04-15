@@ -9,7 +9,7 @@ const {
   updateAuthor,
   deleteAuthor,
   getPopularAuthorAndBooks,
-  getPopularAuthorsAndThierPoularBooks,
+
 } = require('../controllers/author');
 
 const advancedResults = require('../middleware/advancedResults');
