@@ -129,7 +129,7 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ success: false, errors: ['Author with this name already exists'] });
   }
   const imageExt = path.extname(image.name);
-  if (imageExt === 'pdf' || imageExt === 'ppt' || imageExt === 'word' || imageExt === 'excel') {
+  if (imageExt === '.pdf' || imageExt === '.ppt' || imageExt === '.word' || imageExt === '.excel') {
     return res.status(400).json({ success: false, errors: [`wrong image extension ${imageExt}`] });
   }
   const imageName = `photo_author_${firstName}_${lastName}${imageExt}`;
