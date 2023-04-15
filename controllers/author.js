@@ -299,7 +299,7 @@ exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
     // Find the books with the highest average rating
     const popularBooks = await Book.find()
       .sort({ avgRating: -1 })
-      .limit(5)
+      .limit(4)
       .populate('author')
       .populate('category');
 
