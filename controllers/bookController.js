@@ -130,6 +130,9 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
   // Define validation rules
   const rules = [
     body('name')
+      .not()
+      .isNumeric()
+      .withMessage('Book name cannot be a number')
       .isLength({ min: 3, max: 50 })
       .withMessage('Book name must be between 3 and 50 characters'),
     body('category').exists().withMessage('Category is required'),
@@ -187,8 +190,11 @@ exports.updateBook = asyncHandler(async (req, res, next) => {
     req.body.image = book.image;
   } else {
     const { image } = req.files;
-
-    image.name = `photo_book_${req.body.name}${path.parse(image.name).ext}`;
+    const imageEXT = path.parse(image.name).ext;
+    if (imageEXT === '.pdf' || imageEXT === '.word' || imageEXT === '.excel' || imageEXT === '.ppt') {
+      return res.status(400).json({ success: false, errors: [`provide valid file extension not ${imageEXT}`] });
+    }
+    image.name = `photo_book_${req.body.name}${imageEXT}`;
 
     image.mv(
       `${process.env.FILE_UPLOAD_PATH}/books/${image.name}`,
