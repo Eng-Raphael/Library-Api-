@@ -19,7 +19,7 @@ const Author = require('../models/Author');
 router.route('/').get(advancedResults(Author), getAuthors);
 // router.get('/', getAuthors);
 router.get('/popular/books/popular', getPopularAuthorAndBooks);
-router.get('/books/popular', getPopularAuthorsAndThierPoularBooks);
+
 router.get('/:authorId', getAuthor);
 router.get('/:id/books', getAuthors);
 router.post('/', protect, authorize('admin'), createAuthor);
