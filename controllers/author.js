@@ -94,8 +94,7 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
       .exists()
       .withMessage('Please upload an image file')
       .custom((value, { req }) => {
-        const validMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!validMimeTypes.includes(value.mimetype)) {
+        if (!value.mimetype.startsWith('image')) {
           throw new Error('Please upload an image file');
         }
         return true;
