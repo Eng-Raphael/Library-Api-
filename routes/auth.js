@@ -4,8 +4,6 @@ const {
   register,
   login,
   getMe,
-  updateDetails,
-  updatePassword,
   logout,
 } = require('../controllers/auth');
 

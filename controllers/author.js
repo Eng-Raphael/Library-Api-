@@ -32,15 +32,15 @@ exports.getAuthors = asyncHandler(async (req, res) => {
         errors: ['Books not found for the author'],
       });
     }
-    const books = authorBooks.map((book) => ({
-      name: book.name,
-      image: book.image,
-      category: book.category ? book.category.name : '',
-    }));
+    // const books = authorBooks.map((book) => ({
+    //   name: book.name,
+    //   image: book.image,
+    //   category: book.category ? book.category.name : '',
+    // }));
 
     res.status(200).json({
       success: true,
-      data: books,
+      data: authorBooks,
       author,
     });
   } else {
