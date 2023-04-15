@@ -327,7 +327,7 @@ exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
           category: { $first: '$category' },
           author: { $first: '$author' },
           image: { $first: '$image' },
-          avgRating: { $avg: '$avgRating' },
+          avgRating: { $max: '$avgRating' },
         },
       },
       {
