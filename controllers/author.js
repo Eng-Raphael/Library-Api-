@@ -333,6 +333,7 @@ exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
       {
         $sort: {
           avgRating: -1,
+          totalRatings: -1,
         },
       },
       {
