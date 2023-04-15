@@ -158,31 +158,33 @@ exports.deleteBookForUser = asyncHandler(async (req, res, next) => {
 // @route     POST /api/user/book/:id/review
 // @access    Private
 exports.addReviewToBook = asyncHandler(async (req, res, next) => {
-  const review = req.body.review;
-  if (typeof review !== 'string') { // check if review is not a string
-    return res.status(400).json({ success: false, errors: [{ msg: 'Review must be a string' }] });
-  }
-
   const bookId = req.params.id;
   if (!bookId) { // check if bookId is not provided
     return res.status(400).json({ success: false, errors: [{ msg: 'Book ID is required' }] });
   }
 
-  await body('review').isString().run(req);
-  const errors = validationResult(req);
+  await body('review')
+    .isAlpha().withMessage('Review must be a string')
+    .isLength({ min: 3, max: 50 })
+    .withMessage('Review must be between 3 and 50 characters long')
+    .run(req);
 
+  const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ success: false, errors: errors.array() });
   }
-
   const book = await Book.findById(bookId);
 
   if (!book) {
     return res.status(404).json({ success: false, message: 'Book not found' });
   }
 
+  const review = req.body.review;
+
   book.reviews.push(review);
+
   await book.save();
+
   res.status(200).json({ success: true, message: 'Review added to book' });
 });
 
@@ -192,8 +194,14 @@ exports.addReviewToBook = asyncHandler(async (req, res, next) => {
 
 exports.updateReviewForBook = asyncHandler(async (req, res, next) => {
   await Promise.all([
-    body('oldReview').isString().run(req),
-    body('newReview').isString().run(req),
+    body('oldReview').isAlpha().withMessage('Review must be a string')
+      .isLength({ min: 3, max: 50 })
+      .withMessage('Review must be between 3 and 50 characters long')
+      .run(req),
+    body('newReview').isAlpha().withMessage('Review must be a string')
+      .isLength({ min: 3, max: 50 })
+      .withMessage('Review must be between 3 and 50 characters long')
+      .run(req),
   ]);
 
   const errors = validationResult(req);
@@ -232,7 +240,10 @@ exports.updateReviewForBook = asyncHandler(async (req, res, next) => {
 // @access    Private
 
 exports.deleteReviewForBook = asyncHandler(async (req, res, next) => {
-  await body('review').isString().run(req);
+  await body('review').isAlpha().withMessage('Review must be a string')
+    .isLength({ min: 3, max: 50 })
+    .withMessage('Review must be between 3 and 50 characters long')
+    .run(req);
 
   const errors = validationResult(req);
 
