@@ -5,10 +5,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-use-before-define */
 /* eslint-disable consistent-return */
-const crypto = require('crypto');
 const path = require('path');
 const { body, validationResult } = require('express-validator');
-const ErrorResponse = require('../utils/errorResponse');
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
 
@@ -174,64 +172,6 @@ exports.getMe = asyncHandler(async (req, res) => {
       errors: ['Unauthorized access - please log in'],
     });
   }
-});
-
-// @desc      Update user details
-// @route     PUT /api/v1/auth/updatedetails
-// @access    Private
-exports.updateDetails = asyncHandler(async (req, res) => {
-  const { firstName, lastName, email } = req.body;
-
-  await body('firstName')
-    .notEmpty().withMessage('Please add your first name')
-    .isLength({ min: 2, max: 20 })
-    .withMessage('First name should be between 2 to 20 alphabets')
-    .run(req);
-
-  await body('lastName')
-    .notEmpty().withMessage('Please add your last name')
-    .isLength({ min: 2, max: 20 })
-    .withMessage('Last name should be between 2 to 20 alphabets')
-    .run(req);
-
-  await body('email')
-    .notEmpty().withMessage('Please add an email')
-    .isEmail()
-    .withMessage('Please add a valid email')
-    .run(req);
-
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ success: false, errors: errors.array() });
-  }
-
-  const fieldsToUpdate = {
-    firstName,
-    lastName,
-    email,
-  };
-  const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
-    new: true,
-    runValidators: true,
-  });
-  res.status(200).json({
-    success: true,
-    data: user,
-  });
-});
-
-// @desc      Update password
-// @route     PUT /api/v1/auth/updatepassword
-// @access    Private
-exports.updatePassword = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select('+password');
-  if (!await user.matchPassword(req.body.currentPassword)) {
-    return res.status(401).json({ success: false, errors: ['Password is incorrect'] });
-  }
-  user.password = req.body.newPassword;
-  await user.save();
-
-  sendTokenResponse(user, 200, res);
 });
 
 // @desc      Log user out / clear cookie
