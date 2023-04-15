@@ -36,6 +36,8 @@ exports.addBookToUser = asyncHandler(async (req, res, next) => {
         .isIn(['READING', 'READ', 'WANT_TO_READ'])
         .withMessage('Shelve must be one of the following: READING, READ, WANT_TO_READ'),
       check('rating')
+        .isNumeric()
+        .withMessage('Rating must be a number')
         .isInt({ min: 1, max: 5 })
         .withMessage('Rating must be a number between 1 and 5'),
     ];
