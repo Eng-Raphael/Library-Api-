@@ -116,7 +116,7 @@ exports.updateBookToUser = asyncHandler(async (req, res, next) => {
     }
 
     const book = await Book.findById(req.params.id);
-    book.addRating(rating);
+    book.updateRating(rating);
 
     res.status(200).json({ success: true, data: user, msg: 'avgRating added' });
   } else {

@@ -45,7 +45,18 @@ BookSchema.methods.addRating = function (rating) {
 
   return this.save();
 };
+BookSchema.methods.updateRating = function (rating) {
+  // Calculate the new average rating of the book
 
+  if (this.totalRatings === 1) {
+    this.avgRating = rating;
+  } else {
+    const oldRating = this.avgRating;
+    this.avgRating = (Number(oldRating) + Number(rating)) / 2;
+  }
+
+  return this.save();
+};
 BookSchema.statics.deleteRating = async function (bookId, rating) {
   const book = await this.findById(bookId);
   if (!book) {
