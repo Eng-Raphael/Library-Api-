@@ -64,16 +64,23 @@ exports.getAuthor = asyncHandler(async (req, res, next) => {
 // Set up file storage configuration
 exports.createAuthor = asyncHandler(async (req, res, next) => {
   const image = req.files ? req.files.image : null;
+  const validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
   await Promise.all([
     body('firstName')
       .isLength({ min: 3, max: 20 })
       .withMessage('First name should be between 3 to 20 characters')
+      .not()
+      .isNumeric()
+      .withMessage('author firstName can not be a number')
       .exists()
       .withMessage('First name is required')
       .run(req),
     body('lastName')
       .isLength({ min: 3, max: 20 })
       .withMessage('Last name should be between 3 to 20 characters')
+      .not()
+      .isNumeric()
+      .withMessage('author lastName can not be a number')
       .exists()
       .withMessage('Last name is required')
       .run(req),
@@ -93,6 +100,10 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
         return true;
       })
       .custom((value, { req }) => {
+        const imageExt = path.extname(value.name).toLowerCase();
+        if (!validExtensions.includes(imageExt)) {
+          throw new Error('Invalid image file extension. Please upload a jpg, jpeg, png, or gif file.');
+        }
         if (value.size > process.env.MAX_FILE_UPLOAD) {
           throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
         }
