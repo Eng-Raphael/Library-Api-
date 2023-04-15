@@ -15,7 +15,7 @@ const User = require('../models/User');
 exports.register = asyncHandler(async (req, res, next) => {
   const { firstName, lastName, username } = req.body;
   const image = req.files ? req.files.image : null;
-
+  const validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
   // Run validations
   const validations = [
     body('firstName')
@@ -70,6 +70,10 @@ exports.register = asyncHandler(async (req, res, next) => {
           return true;
         })
         .custom((value, { req }) => {
+          const imageExt = path.extname(value.name).toLowerCase();
+          if (!validExtensions.includes(imageExt)) {
+            throw new Error('Invalid image file extension. Please upload a jpg, jpeg, png, or gif file.');
+          }
           if (value.size > process.env.MAX_FILE_UPLOAD) {
             throw new Error(`Please upload an image file less than ${process.env.MAX_FILE_UPLOAD}`);
           }
