@@ -159,7 +159,7 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
 // eslint-disable-next-line consistent-return
 exports.updateAuthor = asyncHandler(async (req, res, next) => {
   const image = req.files ? req.files.image : null;
-
+  const validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
   await Promise.all([
     body('firstName')
       .isLength({ min: 2, max: 20 })
@@ -175,6 +175,11 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
       .run(req),
     body('image')
       .custom(async (value, { req }) => {
+        const imageExt = path.extname(value.name).toLowerCase();
+
+        if (!validExtensions.includes(imageExt)) {
+          throw new Error('Invalid image file extension. Please upload a jpg, jpeg, png, or gif file.');
+        }
         if (value && value.size > process.env.MAX_FILE_UPLOAD) {
           throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
         }
@@ -189,7 +194,12 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
   }
 
   const { firstName, lastName } = req.body;
-  let imageName = null;
+  // Check if author already exists
+  const existingAuthor = await Author.findOne({ firstName, lastName });
+  if (existingAuthor) {
+    return res.status(400).json({ success: false, errors: ['Author with this name already exists'] });
+  }
+  let imageName = 'default.png';
 
   if (image) {
     const imageExt = path.extname(image.name);
