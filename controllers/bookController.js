@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-shadow */
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-underscore-dangle */
@@ -81,12 +82,12 @@ exports.createBook = [
 
       const category = await Category.findById(req.body.category);
       if (!category) {
-        errors.errors.push({ success: false, errors: `Category ${req.body.category} not found` });
+        return res.status(404).json({ success: false, errors: [`Category ${req.body.category} not found`] });
       }
 
       const author = await Author.findById(req.body.author);
       if (!author) {
-        errors.errors.push({ success: false, errors: `Author ${req.body.author} not found` });
+        return res.status(404).json({ success: false, errors: [`Author ${req.body.author} not found`] });
       }
 
       if (errors.errors.length) {
