@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-shadow */
 /* eslint-disable consistent-return */
 /* eslint-disable no-unused-vars */
@@ -64,7 +65,7 @@ exports.getAuthor = asyncHandler(async (req, res, next) => {
 // Set up file storage configuration
 exports.createAuthor = asyncHandler(async (req, res, next) => {
   const image = req.files ? req.files.image : null;
-  const validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+  // const validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
   await Promise.all([
     body('firstName')
       .isLength({ min: 3, max: 20 })
@@ -100,11 +101,11 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
         return true;
       })
       .custom((value, { req }) => {
-        const imageExt = path.extname(value.name).toLowerCase();
+        // const imageExt = path.extname(value.name).toLowerCase();
 
-        if (!validExtensions.includes(imageExt)) {
-          throw new Error('Invalid image file extension. Please upload a jpg, jpeg, png, or gif file.');
-        }
+        // if (!validExtensions.includes(imageExt)) {
+        //   throw new Error('Invalid image file extension. Please upload a jpg, jpeg, png, or gif file.');
+        // }
         if (value.size > process.env.MAX_FILE_UPLOAD) {
           throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
         }
@@ -128,6 +129,9 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ success: false, errors: ['Author with this name already exists'] });
   }
   const imageExt = path.extname(image.name);
+  if (imageExt === 'pdf' || imageExt === 'ppt' || imageExt === 'word' || imageExt === 'excel') {
+    return res.status(400).json({ success: false, errors: [`wrong image extension ${imageExt}`] });
+  }
   const imageName = `photo_author_${firstName}_${lastName}${imageExt}`;
 
   await image.mv(
@@ -159,7 +163,7 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
 // eslint-disable-next-line consistent-return
 exports.updateAuthor = asyncHandler(async (req, res, next) => {
   const image = req.files ? req.files.image : null;
-  const validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+  // const validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
   await Promise.all([
     body('firstName')
       .isLength({ min: 2, max: 20 })
@@ -174,12 +178,12 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
       .withMessage('Please add your last name')
       .run(req),
     body('image')
-      .custom(async (value, { req }) => {
-        const imageExt = path.extname(value.name).toLowerCase();
+      .custom((value, { req }) => {
+        // const imageExt = path.extname(value.name).toLowerCase();
 
-        if (!validExtensions.includes(imageExt)) {
-          throw new Error('Invalid image file extension. Please upload a jpg, jpeg, png, or gif file.');
-        }
+        // if (!validExtensions.includes(imageExt)) {
+        //   throw new Error('Invalid image file extension. Please upload a jpg, jpeg, png, or gif file.');
+        // }
         if (value && value.size > process.env.MAX_FILE_UPLOAD) {
           throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
         }
