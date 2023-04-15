@@ -65,7 +65,6 @@ exports.getAuthor = asyncHandler(async (req, res, next) => {
 // Set up file storage configuration
 exports.createAuthor = asyncHandler(async (req, res, next) => {
   const image = req.files ? req.files.image : null;
-  // const validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
   await Promise.all([
     body('firstName')
       .isLength({ min: 3, max: 20 })
@@ -101,11 +100,6 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
         return true;
       })
       .custom((value, { req }) => {
-        // const imageExt = path.extname(value.name).toLowerCase();
-
-        // if (!validExtensions.includes(imageExt)) {
-        //   throw new Error('Invalid image file extension. Please upload a jpg, jpeg, png, or gif file.');
-        // }
         if (value.size > process.env.MAX_FILE_UPLOAD) {
           throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
         }
@@ -163,7 +157,6 @@ exports.createAuthor = asyncHandler(async (req, res, next) => {
 // eslint-disable-next-line consistent-return
 exports.updateAuthor = asyncHandler(async (req, res, next) => {
   const image = req.files ? req.files.image : null;
-  // const validExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
   await Promise.all([
     body('firstName')
       .isLength({ min: 2, max: 20 })
@@ -179,11 +172,6 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
       .run(req),
     body('image')
       .custom((value, { req }) => {
-        // const imageExt = path.extname(value.name).toLowerCase();
-
-        // if (!validExtensions.includes(imageExt)) {
-        //   throw new Error('Invalid image file extension. Please upload a jpg, jpeg, png, or gif file.');
-        // }
         if (value && value.size > process.env.MAX_FILE_UPLOAD) {
           throw new Error(`Please upload image file less than ${process.env.MAX_FILE_UPLOAD}`);
         }
@@ -207,6 +195,9 @@ exports.updateAuthor = asyncHandler(async (req, res, next) => {
 
   if (image) {
     const imageExt = path.extname(image.name);
+    if (imageExt === '.pdf' || imageExt === '.ppt' || imageExt === '.word' || imageExt === '.excel') {
+      return res.status(400).json({ success: false, errors: [`wrong image extension ${imageExt}`] });
+    }
     imageName = `photo_author_${firstName}_${lastName}${imageExt}`;
     await image.mv(
       `${process.env.FILE_UPLOAD_PATH}/authors/${imageName}`,
@@ -329,6 +320,13 @@ exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
       .populate('author')
       .populate('category');
 
+    if (popularAuthors.length === 0 || popularBooks.length === 0) {
+      return res.status(404).json({
+        success: false,
+        errors: ['Results not found'],
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: {
@@ -340,220 +338,3 @@ exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
     next(err);
   }
 });
-
-// @desc GET popular authors with thier popular books 3 for each
-// @route GET /api/authors/books/popular
-// @access Private (Admin)
-exports.getPopularAuthorsAndThierPoularBooks = asyncHandler(async (req, res, next) => {
-  try {
-    // Find the top 3 authors with the highest average rating
-    const popularAuthors = await Author.aggregate([
-      {
-        $lookup: {
-          from: 'books',
-          localField: '_id',
-          foreignField: 'author',
-          as: 'books',
-        },
-      },
-      {
-        $unwind: '$books',
-      },
-      {
-        $group: {
-          _id: '$_id',
-          firstName: { $first: '$firstName' },
-          lastName: { $first: '$lastName' },
-          avgRating: { $avg: '$books.avgRating' },
-        },
-      },
-      {
-        $sort: {
-          avgRating: -1,
-        },
-      },
-      {
-        $limit: 3,
-      },
-    ]);
-
-    // Get the top 3 books for each of the top 3 authors
-    const popularBooks = await Book.aggregate([
-      {
-        $match: {
-          author: {
-            $in: popularAuthors.map((author) => author._id),
-          },
-        },
-      },
-      {
-        $group: {
-          _id: '$author',
-          books: {
-            $push: {
-              _id: '$_id',
-              name: '$name',
-              category: '$category',
-              avgRating: '$avgRating',
-            },
-          },
-          avgRating: {
-            $avg: '$avgRating',
-          },
-        },
-      },
-      {
-        $sort: {
-          avgRating: -1,
-        },
-      },
-      {
-        $limit: 3,
-      },
-      {
-        $facet: {
-          authors: [
-            {
-              $lookup: {
-                from: 'authors',
-                localField: '_id',
-                foreignField: '_id',
-                as: 'author',
-              },
-            },
-            {
-              $project: {
-                author: {
-                  $arrayElemAt: ['$author', 0],
-                },
-                books: {
-                  $slice: ['$books', 3],
-                },
-                avgRating: 1,
-              },
-            },
-          ],
-          books: [
-            {
-              $unwind: '$books',
-            },
-            {
-              $sort: {
-                'books.avgRating': -1,
-              },
-            },
-            {
-              $group: {
-                _id: '$_id',
-                name: {
-                  $first: '$books.name',
-                },
-                category: {
-                  $first: '$books.category',
-                },
-                author: {
-                  $first: '$author',
-                },
-                avgRating: {
-                  $first: '$books.avgRating',
-                },
-              },
-            },
-            {
-              $limit: 9,
-            },
-          ],
-        },
-      },
-    ]);
-
-    if (popularAuthors.length === 0 || popularBooks.length === 0) {
-      return res.status(404).json({
-        success: false,
-        errors: ['Results not found'],
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: {
-        popularAuthors: popularBooks[0].authors,
-        popularBooks: popularBooks[0].books,
-      },
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
-// exports.getPopularAuthorAndBooks = asyncHandler(async (req, res, next) => {
-//   try {
-//     // Find the author with the highest average rating
-//     const popularAuthors = await Author.aggregate([
-//       {
-//         $lookup: {
-//           from: 'books',
-//           localField: '_id',
-//           foreignField: 'author',
-//           as: 'books',
-//         },
-//       },
-//       {
-//         $unwind: '$books',
-//       },
-//       {
-//         $group: {
-//           _id: '$_id',
-//           firstName: { $first: '$firstName' },
-//           lastName: { $first: '$lastName' },
-//           avgRating: { $avg: '$books.avgRating' },
-//         },
-//       },
-//       {
-//         $sort: {
-//           avgRating: -1,
-//         },
-//       },
-//       {
-//         $limit: 3,
-//       },
-//     ]);
-
-//     // Find the books with the highest average rating
-//     const popularBooks = await Book.aggregate([
-//       {
-//         $group: {
-//           _id: '$_id',
-//           name: { $first: '$name' },
-//           category: { $first: '$category' },
-//           author: { $first: '$author' },
-//           avgRating: { $avg: '$avgRating' },
-//         },
-//       },
-//       {
-//         $sort: {
-//           avgRating: -1,
-//         },
-//       },
-//       {
-//         $limit: 10,
-//       },
-//     ]);
-// if (popularAuthors.length === 0 || popularBooks.length === 0) {
-//   return res.status(404).json({
-//     success: false,
-//     errors: ['Results not found'],
-//   });
-// }
-
-//     res.status(200).json({
-//       success: true,
-//       data: {
-//         popularAuthor: popularAuthors.slice(0, 3),
-//         popularBooks,
-//       },
-//     });
-//   } catch (err) {
-//     next(err);
-//   }
-// });
