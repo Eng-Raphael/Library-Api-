@@ -76,6 +76,7 @@ app.use(hpp());
 const corsOptions = {
   origin: ['http://localhost:4200', 'https://goodreads-gyhr.onrender.com', 'https://raboegila.github.io/GoodReads-FrontEnd/'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
