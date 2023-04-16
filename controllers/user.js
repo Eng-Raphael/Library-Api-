@@ -198,7 +198,7 @@ exports.addReviewToBook = asyncHandler(async (req, res, next) => {
 
 exports.updateReviewForBook = asyncHandler(async (req, res, next) => {
   await Promise.all([
-    body('oldReview').isAlpha().withMessage('Review must be a string')
+    body('oldReview')
       .isString()
       .withMessage('Review must be a string')
       .isLength({ min: 3, max: 50 })
