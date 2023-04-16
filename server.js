@@ -72,14 +72,6 @@ app.use(limiter);
 // Prevent http param pollution
 app.use(hpp());
 
-// Enable CORS
-const corsOptions = {
-  origin: ['http://localhost:4200', 'https://goodreads-gyhr.onrender.com', 'https://raboegila.github.io/GoodReads-FrontEnd/'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
-};
-app.use(cors(corsOptions));
-
 app.use((req, res, next) => {
   res.set({
     'Access-Control-Allow-Origin': '*',
@@ -89,6 +81,14 @@ app.use((req, res, next) => {
 
   next();
 });
+
+// Enable CORS
+const corsOptions = {
+  origin: ['http://localhost:4200', 'https://goodreads-gyhr.onrender.com', 'https://raboegila.github.io/GoodReads-FrontEnd/'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 // set static folder
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
