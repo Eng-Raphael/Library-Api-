@@ -159,14 +159,18 @@ exports.deleteBookForUser = asyncHandler(async (req, res, next) => {
 // @access    Private
 exports.addReviewToBook = asyncHandler(async (req, res, next) => {
   const bookId = req.params.id;
-  if (!bookId) { // check if bookId is not provided
+
+  if (!bookId) {
     return res.status(400).json({ success: false, errors: [{ msg: 'Book ID is required' }] });
   }
 
   await body('review')
-    .isAlpha().withMessage('Review must be a string')
+    .isString().withMessage('Review must be a string')
     .isLength({ min: 3, max: 50 })
     .withMessage('Review must be between 3 and 50 characters long')
+    .not()
+    .isNumeric()
+    .withMessage('author firstName can not be a number')
     .run(req);
 
   const errors = validationResult(req);
@@ -195,12 +199,20 @@ exports.addReviewToBook = asyncHandler(async (req, res, next) => {
 exports.updateReviewForBook = asyncHandler(async (req, res, next) => {
   await Promise.all([
     body('oldReview').isAlpha().withMessage('Review must be a string')
+      .isString()
+      .withMessage('Review must be a string')
       .isLength({ min: 3, max: 50 })
       .withMessage('Review must be between 3 and 50 characters long')
+      .not()
+      .isNumeric()
+      .withMessage('author firstName can not be a number')
       .run(req),
-    body('newReview').isAlpha().withMessage('Review must be a string')
+    body('newReview').isString().withMessage('Review must be a string')
       .isLength({ min: 3, max: 50 })
       .withMessage('Review must be between 3 and 50 characters long')
+      .not()
+      .isNumeric()
+      .withMessage('author firstName can not be a number')
       .run(req),
   ]);
 
@@ -240,9 +252,12 @@ exports.updateReviewForBook = asyncHandler(async (req, res, next) => {
 // @access    Private
 
 exports.deleteReviewForBook = asyncHandler(async (req, res, next) => {
-  await body('review').isAlpha().withMessage('Review must be a string')
+  await body('review').isString().withMessage('Review must be a string')
     .isLength({ min: 3, max: 50 })
     .withMessage('Review must be between 3 and 50 characters long')
+    .not()
+    .isNumeric()
+    .withMessage('author firstName can not be a number')
     .run(req);
 
   const errors = validationResult(req);
