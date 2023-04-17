@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
 
@@ -34,43 +35,15 @@ const BookSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 BookSchema.methods.addRating = function (rating) {
-  // Calculate the new average rating of the book
   this.totalRatings += 1;
-  if (this.totalRatings === 1) {
-    this.avgRating = rating;
-  } else {
-    const oldRating = this.avgRating;
-    this.avgRating = (Number(oldRating) + Number(rating)) / 2;
-  }
+  this.avgRating = ((this.avgRating || 0) * (this.totalRatings - 1) + rating) / this.totalRatings;
 
   return this.save();
 };
 BookSchema.methods.updateRating = function (rating) {
-  // Calculate the new average rating of the book
-
-  if (this.totalRatings === 1) {
-    this.avgRating = rating;
-  } else {
-    const oldRating = this.avgRating;
-    this.avgRating = (Number(oldRating) + Number(rating)) / 2;
-  }
+  this.avgRating = ((this.avgRating || 0) * this.totalRatings - rating + rating) / this.totalRatings;
 
   return this.save();
-};
-BookSchema.statics.deleteRating = async function (bookId, rating) {
-  const book = await this.findById(bookId);
-  if (!book) {
-    throw new Error(`Book with id ${bookId} not found.`);
-  }
-  const oldRating = book.avgRating * book.totalRatings;
-  book.totalRatings -= 1;
-  if (book.totalRatings > 0) {
-    book.avgRating = (oldRating - rating) / book.totalRatings;
-  } else {
-    book.avgRating = 0;
-  }
-  book.avgRating *= 20;
-  return book.save();
 };
 
 module.exports = mongoose.model('Book', BookSchema);
